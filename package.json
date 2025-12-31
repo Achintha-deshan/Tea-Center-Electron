@@ -1,6 +1,6 @@
 {
   "name": "teacenter",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Tea Center management desktop app",
   "author": "Your Name",
   "main": "src/main/index.js",
