@@ -18,7 +18,9 @@ contextBridge.exposeInMainWorld('api', {
     add: (data) => ipcRenderer.invoke('customer:add', data),
     update: (data) => ipcRenderer.invoke('customer:update', data),
     delete: (id) => ipcRenderer.invoke('customer:delete', id),
-    getAllIds: () => ipcRenderer.invoke('customer:getAllIds') // optional helper if needed
+    getAllIds: () => ipcRenderer.invoke('customer:getAllIds'),
+    search: (query) => ipcRenderer.invoke('customer:search', query)
+
   },
 
   // ==================== EMPLOYEE ====================
@@ -137,6 +139,7 @@ contextBridge.exposeInMainWorld('api', {
   },
   summary: {
     load: (data) => ipcRenderer.invoke('summary:load', data),
+    getNextId: () => ipcRenderer.invoke('summary:getNextId'),
     calculate: (data) => ipcRenderer.invoke('summary:calculate', data)
   },
   report: {

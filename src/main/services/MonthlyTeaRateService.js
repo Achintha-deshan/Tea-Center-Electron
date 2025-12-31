@@ -75,7 +75,7 @@ class MonthlyTeaRateService {
     }
   }
 
-   // 🔹 MAIN METHOD (Renderer uses ONLY this)
+  // 🔹 MAIN METHOD (Renderer uses ONLY this)
   loadByYearMonth(year, month) {
 
     // 1️⃣ Check calculated payments exist?
@@ -97,8 +97,8 @@ class MonthlyTeaRateService {
     const rawRows = db.prepare(`
       SELECT
         CustomerID,
-        SUM(CASE WHEN TeaType='Best Tea' THEN QuantityKg ELSE 0 END) AS BestTeaKg,
-        SUM(CASE WHEN TeaType='Normal Tea' THEN QuantityKg ELSE 0 END) AS NormalTeaKg
+        SUM(CASE WHEN TeaType='Best Tea' THEN NetValue ELSE 0 END) AS BestTeaKg,
+        SUM(CASE WHEN TeaType='Normal Tea' THEN NetValue ELSE 0 END) AS NormalTeaKg
       FROM RAWTeaInventory
       WHERE strftime('%Y', Date) = ?
         AND strftime('%m', Date) = ?
@@ -112,9 +112,9 @@ class MonthlyTeaRateService {
   }
 
   update(data) {
-  try {
-  
-    const sql = `
+    try {
+
+      const sql = `
       UPDATE CustomerRawTeaPayment
       SET 
         BestTeaRate = ?, NormalTeaRate = ?,
@@ -122,22 +122,22 @@ class MonthlyTeaRateService {
       WHERE PaymentID = ?
     `;
 
-    db.prepare(sql).run(
-      data.BestTeaRate,
-      data.NormalTeaRate,
-      data.BestTeaPrice,
-      data.NormalTeaPrice,
-      data.FullTotal,
-      data.Date,
-      data.PaymentID
-    );
+      db.prepare(sql).run(
+        data.BestTeaRate,
+        data.NormalTeaRate,
+        data.BestTeaPrice,
+        data.NormalTeaPrice,
+        data.FullTotal,
+        data.Date,
+        data.PaymentID
+      );
 
-    return { success: true };
-  } catch (err) {
-    console.error('❌ update error:', err);
-    return { success: false, message: err.message };
+      return { success: true };
+    } catch (err) {
+      console.error('❌ update error:', err);
+      return { success: false, message: err.message };
+    }
   }
-}
 
 }
 

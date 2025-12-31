@@ -1911,7 +1911,7 @@
                           class="form-control"
                           placeholder="Customer name"
                         />
-                        <button id="btnSearchCustomer" type="button" class="btn btn-success">
+                        <button id="btnSearchCustomer" class="btn btn-success">
                           <i class="bi bi-search"></i>
                         </button>
                       </div>
@@ -2470,6 +2470,23 @@
                 <!-- Left Form -->
                 <div class="col-lg-4">
                   <div class="bg-light rounded-3 p-4">
+                     <!-- Search -->
+                    <div class="mb-3">
+                      <label class="form-label fw-semibold"
+                        >Search Customer</label
+                      >
+                      <div class="input-group">
+                        <input
+                          id="txtSearchCustomer"
+                          type="text"
+                          class="form-control"
+                          placeholder="Customer name"
+                        />
+                        <button id="btnSearchCustomer" class="btn btn-success">
+                          <i class="bi bi-search"></i>
+                        </button>
+                      </div>
+                    </div>
                     <!-- Hidden Fields -->
                     <input type="hidden" id="txtTeaOrderId" />
 
@@ -2998,13 +3015,30 @@
 
             <!-- Body -->
             <div class="card-body p-4">
+               <!-- Search -->
+                    <div class="mb-3">
+                      <label class="form-label fw-semibold"
+                        >Search Customer</label
+                      >
+                      <div class="input-group">
+                        <input
+                          id="txtSearchCustomer"
+                          type="text"
+                          class="form-control"
+                          placeholder="Customer name"
+                        />
+                        <button id="btnSearchCustomer" class="btn btn-success">
+                          <i class="bi bi-search"></i>
+                        </button>
+                      </div>
+                    </div>
               <!-- Customer MP ID -->
               <div class="mb-4">
                 <strong class="fs-5">Customer MP ID:</strong>
                 <span
                   id="lblCustomerMPID"
                   class="fs-5 text-primary ms-2 fw-bold"
-                  >CMP-001</span
+                  ></span
                 >
               </div>
 
@@ -3302,12 +3336,7 @@
                     >
                       Generate Report
                     </button>
-                    <button
-                      id="btnGenerateAllReports"
-                      class="btn btn-outline-danger btn-lg w-100 mt-2"
-                    >
-                      <i class="bi bi-collection me-2"></i>Generate All Reports
-                    </button>
+                   
                   </div>
                 </div>
               </div>

@@ -1,37 +1,47 @@
-console.log('Customer Summary Renderer Loaded');
-
-// =================== Select elements ===================
+// =================== Global Variables ===================
 const yearSelect = $('#cmbSummaryYear');
 const monthSelect = $('#cmbSummaryMonth');
 const customerSelect = $('#cmbSummaryCustomerID');
 const customerNameInput = $('#lblSummaryCustomerName');
+const summaryIdLabel = $('#lblCustomerMPID');
 
-// Store loaded data globally (for calculations & report)
 let loadedSummaryData = null;
 
-// =================== Fill dropdowns ===================
+$(document).ready(async function () {
+    fillYears();
+    fillMonths();
+    await loadCustomers();
+    await generateNextId();
+});
+
+// --- Helper: Reset Form ---
+function resetForm() {
+    loadedSummaryData = null;
+    customerSelect.val('').trigger('change');
+    customerNameInput.val('-');
+    $('.summary-val').text('Rs 0.00');
+    $('table tbody').empty().append('<tr><td colspan="10" class="text-center text-muted py-3">No data available</td></tr>');
+    $('#btnGenerateReport').prop('disabled', true);
+    $('#btnCalculateSummary').prop('disabled', false);
+    generateNextId();
+}
+
 function fillYears() {
     yearSelect.empty();
     const currentYear = new Date().getFullYear();
-    for (let y = 2020; y <= 2030; y++) {
+    for (let y = 2020; y <= 2035; y++) {
         yearSelect.append(`<option value="${y}">${y}</option>`);
     }
     yearSelect.val(currentYear);
 }
 
 function fillMonths() {
-    const months = [
-        'January', 'February', 'March', 'April', 'May', 'June',
-        'July', 'August', 'September', 'October', 'November', 'December'
-    ];
+    const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
     monthSelect.empty();
-    months.forEach((m, i) => {
-        monthSelect.append(`<option value="${i + 1}">${m}</option>`);
-    });
+    months.forEach((m, i) => { monthSelect.append(`<option value="${i + 1}">${m}</option>`); });
     monthSelect.val(new Date().getMonth() + 1);
 }
 
-// =================== Load customers ===================
 async function loadCustomers() {
     try {
         const res = await window.api.customer.getAll();
@@ -39,253 +49,258 @@ async function loadCustomers() {
         res.forEach(c => {
             customerSelect.append(`<option value="${c.CustomerID}" data-name="${c.Name}">${c.CustomerID}</option>`);
         });
-    } catch (err) {
-        console.error('Error loading customers:', err);
-        alert('ග්‍රාහකයින් load කිරීමේදී දෝෂයක් ඇතිවුණා');
-    }
+    } catch (err) { console.error('Error loading customers:', err); }
 }
 
-// =================== Update customer name when selected ===================
+async function generateNextId() {
+    try {
+        const nextId = await window.api.summary.getNextId();
+        summaryIdLabel.text(nextId);
+    } catch (err) { console.error('ID generate error:', err); }
+}
+
 customerSelect.on('change', function () {
     const name = $(this).find(':selected').data('name') || '-';
     customerNameInput.val(name);
 });
 
-// =================== Table Fill Functions (UI එකට data දානවා) ===================
-function fillRawTeaTable(data) {
-    const tbody = $('#tblSummaryRawTea tbody');
-    tbody.empty();
-    if (!data || data.length === 0) {
-        tbody.append('<tr><td colspan="6" class="text-center text-muted py-4">No data available</td></tr>');
-        return;
-    }
-    data.forEach(row => {
-        const bestTotal = (row.BestTeaKg || 0) * (row.BestTeaRate || 0);
-        const normalTotal = (row.NormalTeaKg || 0) * (row.NormalTeaRate || 0);
-        const fullTotal = bestTotal + normalTotal;
-        tbody.append(`
-            <tr>
-                <td>${row.Date || '-'}</td>
-                <td>${(row.BestTeaKg || 0).toFixed(2)}</td>
-                <td>${(row.NormalTeaKg || 0).toFixed(2)}</td>
-                <td>Rs ${bestTotal.toFixed(2)}</td>
-                <td>Rs ${normalTotal.toFixed(2)}</td>
-                <td>Rs ${fullTotal.toFixed(2)}</td>
-            </tr>
-        `);
-    });
-}
-
-function fillFertilizerTable(data) {
-    const tbody = $('#tblSummaryFertilizer tbody');
-    tbody.empty();
-    if (!data || data.length === 0) {
-        tbody.append('<tr><td colspan="5" class="text-center text-muted py-4">No data available</td></tr>');
-        return;
-    }
-    data.forEach(row => {
-        const paid = row.HalfPayment1 || 0;
-        const remaining = (row.TotalPrice || 0) - paid;
-        tbody.append(`
-            <tr>
-                <td>${row.Date || '-'}</td>
-                <td>${(row.Quantity || 0).toFixed(2)}</td>
-                <td>${row.FertilizerType || '-'}</td>
-                <td>Rs ${paid.toFixed(2)}</td>
-                <td>Rs ${remaining.toFixed(2)}</td>
-            </tr>
-        `);
-    });
-}
-
-function fillTeaPacketTable(data) {
-    const tbody = $('#tblSummaryTeaPacket tbody');
-    tbody.empty();
-    if (!data || data.length === 0) {
-        tbody.append('<tr><td colspan="4" class="text-center text-muted py-4">No data available</td></tr>');
-        return;
-    }
-    data.forEach(row => {
-        tbody.append(`
-            <tr>
-                <td>${row.Date || '-'}</td>
-                <td>${row.Quantity || 0}</td>
-                <td>Rs ${(row.Price || 0).toFixed(2)}</td>
-                <td>Rs ${(row.FullTotal || 0).toFixed(2)}</td>
-            </tr>
-        `);
-    });
-}
-
-function fillAdvanceTable(data) {
-    const tbody = $('#tblSummaryAdvance tbody');
-    tbody.empty();
-    if (!data || data.length === 0) {
-        tbody.append('<tr><td colspan="2" class="text-center text-muted py-4">No data available</td></tr>');
-        return;
-    }
-    data.forEach(row => {
-        tbody.append(`
-            <tr>
-                <td>${row.Date || '-'}</td>
-                <td>Rs ${(row.AdvanceAmount || 0).toFixed(2)}</td>
-            </tr>
-        `);
-    });
-}
-
-function fillOtherTable(data) {
-    const tbody = $('#tblSummaryOther tbody');
-    tbody.empty();
-    if (!data || data.length === 0) {
-        tbody.append('<tr><td colspan="3" class="text-center text-muted py-4">No data available</td></tr>');
-        return;
-    }
-    data.forEach(row => {
-        tbody.append(`
-            <tr>
-                <td>${row.Date || '-'}</td>
-                <td>${row.Description || '-'}</td>
-                <td>Rs ${(row.Price || 0).toFixed(2)}</td>
-            </tr>
-        `);
-    });
-}
-
-// =================== Reset all summary labels ===================
-function resetSummaryDisplay() {
-    $('#lblSummaryTotalRawTea').text('Rs 0.00');
-    $('#lblSummaryTotalTeaPacket').text('Rs 0.00');
-    $('#lblSummaryTotalAdvance').text('Rs 0.00');
-    $('#lblSummaryTotalOther').text('Rs 0.00');
-    $('#lblSummaryTotalFertilizer').text('Rs 0.00');
-    $('#lblSummaryNextFertilizer').text('Rs 0.00');
-    $('#lblSummaryGrandTotal').text('Rs 0.00');
-    $('#lblSummaryNextRemaining').text('Rs 0.00');
-}
-
-// =================== Load Data Button ===================
+// =================== 1. Load Data ===================
 $('#btnLoadSummaryData').click(async () => {
     const customerId = customerSelect.val();
-    const year = yearSelect.val();
-    const month = monthSelect.val();
+    const year = parseInt(yearSelect.val());
+    const month = parseInt(monthSelect.val());
 
-    if (!customerId || !year || !month) {
-        alert('කරුණාකර ග්‍රාහකයා, අවුරුද්ද සහ මාසය තෝරන්න');
-        return;
-    }
+    if (!customerId) return alert('කරුණාකර ග්‍රාහකයෙකු තෝරන්න');
 
     try {
-        $('#btnLoadSummaryData').prop('disabled', true).text('Loading...');
+        $('#btnLoadSummaryData').prop('disabled', true).html('<span class="spinner-border spinner-border-sm"></span> Loading...');
+        const res = await window.api.summary.load({ customerId, year, month });
 
-        const res = await window.api.summary.load({
-            customerId,
-            year: parseInt(year),
-            month: parseInt(month)
-        });
+        if (res.success && res.data) {
+            loadedSummaryData = { customerId, year, month, ...res.data };
+            $('#lblPrevFertilizerRemaining').text(`Rs ${(res.data.prevFertilizer || 0).toFixed(2)}`);
+            $('#lblPrevRemainingAmount').text(`Rs ${(res.data.prevArrears || 0).toFixed(2)}`);
 
-        if (!res.success) {
-            alert(res.message || 'දත්ත load කිරීම අසාර්ථකයි');
-            loadedSummaryData = null;
-            return;
+            renderTable('#tblSummaryRawTea', res.data.rawTea || [], 'rawTea');
+            renderTable('#tblSummaryFertilizer', res.data.fertilizer || [], 'fertilizer');
+            renderTable('#tblSummaryTeaPacket', res.data.teaPacket || [], 'teaPacket');
+            renderTable('#tblSummaryAdvance', res.data.advance || [], 'advance');
+            renderTable('#tblSummaryOther', res.data.other || [], 'other');
+
+            $('#btnGenerateReport').prop('disabled', true);
+            alert('දත්ත සාර්ථකව පූරණය විය!');
+        } else {
+            alert('දත්ත හමු නොවීය!');
         }
-
-        const data = res.data;
-        loadedSummaryData = { customerId, year: parseInt(year), month: parseInt(month), ...data };
-
-        // Previous month values
-        $('#lblPrevFertilizerRemaining').text(`Rs ${(data.prevFertilizer || 0).toFixed(2)}`);
-        $('#lblPrevRemainingAmount').text(`Rs ${(data.prevArrears || 0).toFixed(2)}`);
-
-        // Fill tables
-        fillRawTeaTable(data.rawTea || []);
-        fillFertilizerTable(data.fertilizer || []);
-        fillTeaPacketTable(data.teaPacket || []);
-        fillAdvanceTable(data.advance || []);
-        fillOtherTable(data.other || []);
-
-        resetSummaryDisplay();
-
-        // Disable report button until calculated
-        $('#btnGenerateReport').prop('disabled', true);
-
-    } catch (err) {
-        console.error('Load error:', err);
-        alert('දත්ත load කිරීමේදී දෝෂයක් ඇතිවුණා');
-        loadedSummaryData = null;
-    } finally {
-        $('#btnLoadSummaryData').prop('disabled', false).text('Load Data');
-    }
+    } catch (err) { alert('Load Error: ' + err.message); }
+    finally { $('#btnLoadSummaryData').prop('disabled', false).text('Load Data'); }
 });
 
-// =================== Calculate Button ===================
-$('#btnCalculateSummary').click(async () => {
-    if (!loadedSummaryData) {
-        alert('කරුණාකර මුලින් Load Data කරන්න');
-        return;
+function renderTable(selector, data, type) {
+    const tbody = $(selector);
+    tbody.empty();
+    if (!data || data.length === 0) {
+        const cols = (type === 'rawTea') ? 6 : (type === 'fertilizer' ? 5 : 4);
+        return tbody.append(`<tr><td colspan="${cols}" class="text-center text-muted py-3">No data available</td></tr>`);
     }
+    data.forEach(row => {
+        let tr = `<tr><td>${row.Date || row.OrderDate || '-'}</td>`;
+        if (type === 'rawTea') {
+            const bt = (row.BestTeaKg || 0) * (row.BestTeaRate || 0);
+            const nt = (row.NormalTeaKg || 0) * (row.NormalTeaRate || 0);
+            tr += `<td>${row.BestTeaKg}</td><td>${row.NormalTeaKg}</td><td>${bt.toFixed(2)}</td><td>${nt.toFixed(2)}</td><td class="fw-bold">${(bt + nt).toFixed(2)}</td>`;
+        } else if (type === 'fertilizer') {
+            tr += `<td>${row.Quantity}</td><td>${row.FertilizerType}</td><td>${(row.HalfPayment1 || 0).toFixed(2)}</td><td>${(row.HalfPayment2 || 0).toFixed(2)}</td>`;
+        } else if (type === 'teaPacket') {
+            tr += `<td>${row.Quantity}</td><td>${(row.Price || 0).toFixed(2)}</td><td class="fw-bold">${(row.FullTotal || 0).toFixed(2)}</td>`;
+        } else if (type === 'advance') {
+            tr += `<td class="fw-bold">${(row.AdvanceAmount || 0).toFixed(2)}</td>`;
+        } else if (type === 'other') {
+            tr += `<td>${row.Description}</td><td>${(row.Price || 0).toFixed(2)}</td>`;
+        }
+        tr += `</tr>`;
+        tbody.append(tr);
+    });
+}
 
+// =================== 3. Calculate & Save ===================
+$('#btnCalculateSummary').click(async () => {
+    if (!loadedSummaryData) return alert('කරුණාකර ප්‍රථමයෙන් දත්ත පූරණය කරන්න!');
     try {
-        $('#btnCalculateSummary').prop('disabled', true).text('Calculating...');
+        const d = loadedSummaryData;
+        const totalBestKg = d.rawTea.reduce((s, r) => s + (r.BestTeaKg || 0), 0);
+        const totalNormalKg = d.rawTea.reduce((s, r) => s + (r.NormalTeaKg || 0), 0);
+        const bestRate = d.rawTea.length > 0 ? (d.rawTea[0].BestTeaRate || 0) : 0;
+        const normalRate = d.rawTea.length > 0 ? (d.rawTea[0].NormalTeaRate || 0) : 0;
 
-        const data = loadedSummaryData;
+        const totalRawTea = (totalBestKg * bestRate) + (totalNormalKg * normalRate);
+        const totalTeaPacket = d.teaPacket.reduce((s, r) => s + (r.FullTotal || 0), 0);
+        const totalAdvance = d.advance.reduce((s, r) => s + (r.AdvanceAmount || 0), 0);
+        const totalOther = d.other.reduce((s, r) => s + (r.Price || 0), 0);
+        const paidFertilizer = d.fertilizer.reduce((s, r) => s + (r.HalfPayment1 || 0), 0);
+        const remainingFertilizer = d.fertilizer.reduce((s, r) => s + (r.HalfPayment2 || 0), 0);
 
-        // Calculations
-        const totalRawTea = data.rawTea.reduce((sum, r) =>
-            sum + (r.BestTeaKg || 0) * (r.BestTeaRate || 0) + (r.NormalTeaKg || 0) * (r.NormalTeaRate || 0), 0);
+        const totalDeductions = (d.prevFertilizer || 0) + (d.prevArrears || 0) + totalTeaPacket + totalAdvance + totalOther + paidFertilizer;
+        const netValue = totalRawTea - totalDeductions;
+        const nextArrears = netValue < 0 ? Math.abs(netValue) : 0;
+        const finalPayable = netValue > 0 ? netValue : 0;
 
-        const totalTeaPacket = data.teaPacket.reduce((sum, r) => sum + (r.FullTotal || 0), 0);
-        const totalAdvance = data.advance.reduce((sum, r) => sum + (r.AdvanceAmount || 0), 0);
-        const totalOther = data.other.reduce((sum, r) => sum + (r.Price || 0), 0);
-        const paidFertilizer = data.fertilizer.reduce((sum, r) => sum + (r.HalfPayment1 || 0), 0);
-        const remainingFertilizer = data.fertilizer.reduce((sum, r) => sum + (r.HalfPayment2 || 0), 0);
-
-        const prevFert = data.prevFertilizer || 0;
-        const prevArr = data.prevArrears || 0;
-
-        const grandTotal = totalRawTea - prevArr - prevFert - paidFertilizer - totalTeaPacket - totalAdvance - totalOther;
-        const nextArrears = grandTotal < 0 ? Math.abs(grandTotal) : 0;
-
-        // Update UI labels
         $('#lblSummaryTotalRawTea').text(`Rs ${totalRawTea.toFixed(2)}`);
         $('#lblSummaryTotalTeaPacket').text(`Rs ${totalTeaPacket.toFixed(2)}`);
         $('#lblSummaryTotalAdvance').text(`Rs ${totalAdvance.toFixed(2)}`);
         $('#lblSummaryTotalOther').text(`Rs ${totalOther.toFixed(2)}`);
         $('#lblSummaryTotalFertilizer').text(`Rs ${paidFertilizer.toFixed(2)}`);
         $('#lblSummaryNextFertilizer').text(`Rs ${remainingFertilizer.toFixed(2)}`);
-        $('#lblSummaryGrandTotal').text(`Rs ${grandTotal.toFixed(2)}`);
+        $('#lblSummaryGrandTotal').text(`Rs ${finalPayable.toFixed(2)}`);
         $('#lblSummaryNextRemaining').text(`Rs ${nextArrears.toFixed(2)}`);
 
-        // Save to database
-        const saveResult = await window.api.summary.calculate({
-            customerId: data.customerId,
-            year: data.year,
-            month: data.month,
-            totalRawTea,
-            paidFertilizer,
-            totalTeaPacket,
-            advanceTotal: totalAdvance,
-            otherTotal: totalOther,
-            remainingFertilizer,
-            arrears: nextArrears,
-            grandTotal,
-            prevFertilizer: data.prevFertilizer || 0,
-            prevArrears: data.prevArrears || 0
+        const saveRes = await window.api.summary.calculate({
+            customerId: d.customerId, year: d.year, month: d.month,
+            totalRawTea, paidFertilizer, totalTeaPacket, advanceTotal: totalAdvance,
+            otherTotal: totalOther, remainingFertilizer, arrears: nextArrears,
+            grandTotal: finalPayable, prevFertilizer: d.prevFertilizer, prevArrears: d.prevArrears
         });
 
-        if (saveResult.success) {
-            $('#lblCustomerMPID').text(saveResult.data.summaryId);
-            $('#btnGenerateReport').prop('disabled', false); // Enable report button
-            alert('සාරාංශය සාර්ථකව ගණනය කර සුරකින ලදී!');
-            console.log('Saved Summary ID:', saveResult.data.summaryId);
-        } else {
-            alert('සුරකීම අසාර්ථක විය: ' + saveResult.message);
+        if (saveRes.success) {
+            summaryIdLabel.text(saveRes.data.summaryId);
+            $('#btnGenerateReport').prop('disabled', false);
+            alert('ගණනය කිරීම අවසන්!');
         }
+    } catch (err) { alert('Calculate Error: ' + err.message); }
+});
 
+// =================== 4. Report Generation ===================
+$('#btnGenerateReport').click(async () => {
+    if (!loadedSummaryData) return;
+    try {
+        const d = loadedSummaryData;
+        const totalTeaPacket = d.teaPacket.reduce((s, r) => s + (r.FullTotal || 0), 0);
+        const totalOtherOnly = d.other.reduce((s, r) => s + (r.Price || 0), 0);
+        const totalAdvance = d.advance.reduce((s, r) => s + (r.AdvanceAmount || 0), 0);
+        const paidFertilizer = d.fertilizer.reduce((s, r) => s + (r.HalfPayment1 || 0), 0);
+        const totalRawTeaValue = d.rawTea.reduce((s, r) => s + (r.BestTeaKg * r.BestTeaRate) + (r.NormalTeaKg * r.NormalTeaRate), 0);
+
+        const reportData = {
+            summaryId: summaryIdLabel.text(),
+            customerId: d.customerId,
+            customerName: customerNameInput.val(),
+            year: yearSelect.val(),
+            month: monthSelect.find(':selected').text(),
+
+            totalBestKg: d.rawTea.reduce((s, r) => s + (r.BestTeaKg || 0), 0),
+            totalNormalKg: d.rawTea.reduce((s, r) => s + (r.NormalTeaKg || 0), 0),
+            bestRate: d.rawTea.length > 0 ? d.rawTea[0].BestTeaRate : 0,
+            normalRate: d.rawTea.length > 0 ? d.rawTea[0].NormalTeaRate : 0,
+            totalRawTea: totalRawTeaValue,
+
+            prevFertilizer: d.prevFertilizer || 0,
+            prevArrears: d.prevArrears || 0,
+            totalAdvance: totalAdvance,
+            totalTeaPackets: totalTeaPacket,
+            totalOtherOnly: totalOtherOnly,
+            paidFertilizer: paidFertilizer,
+            totalDeductions: (d.prevFertilizer + d.prevArrears + totalTeaPacket + totalAdvance + totalOtherOnly + paidFertilizer),
+
+            grandTotal: parseFloat($('#lblSummaryGrandTotal').text().replace('Rs ', '')),
+            nextFertilizer: d.fertilizer.reduce((s, r) => s + (r.HalfPayment2 || 0), 0),
+            nextRemaining: parseFloat($('#lblSummaryNextRemaining').text().replace('Rs ', '')),
+
+            // වගු සඳහා HTML Helper Functions මෙතැනදී කැඳවනු ලැබේ
+            advanceTable: generateAdvanceTableHtml(d.advance),
+            otherTable: generateOtherTableHtml(d.teaPacket, d.other),
+            fertilizerTableHtml: generateFertilizerTableHtml(d.fertilizer)
+        };
+
+        $('#btnGenerateReport').prop('disabled', true).text('Generating...');
+        const result = await window.api.report.generateCustomerSummary(reportData);
+        if (result.success) {
+            alert('වාර්තාව සාර්ථකව නිපදවන ලදී!');
+            resetForm();
+        }
+    } catch (error) { alert('Report Error: ' + error.message); }
+    finally { $('#btnGenerateReport').prop('disabled', false).text('Generate Report'); }
+});
+
+// =================== 5. Table Helper Functions (For PDF) ===================
+
+function generateAdvanceTableHtml(advances) {
+    let rows = advances && advances.length > 0
+        ? advances.map(a => `<tr><td>${a.Date}</td><td style="text-align:right;">${parseFloat(a.AdvanceAmount).toFixed(2)}</td></tr>`).join('')
+        : '<tr><td colspan="2" style="text-align:center;">දත්ත නොමැත</td></tr>';
+
+    return `<table class="simple-table">
+                <thead><tr><th>දිනය</th><th style="text-align:right;">මුදල (Rs)</th></tr></thead>
+                <tbody>${rows}</tbody>
+            </table>`;
+}
+
+function generateOtherTableHtml(teaPackets, others) {
+    let rows = '';
+    if (teaPackets && teaPackets.length > 0) {
+        teaPackets.forEach(tp => {
+            rows += `<tr><td>${tp.Date}</td><td>තේ පැකට් (${tp.Quantity})</td><td style="text-align:right;">${parseFloat(tp.FullTotal).toFixed(2)}</td></tr>`;
+        });
+    }
+    if (others && others.length > 0) {
+        others.forEach(o => {
+            rows += `<tr><td>${o.Date}</td><td>${o.Description}</td><td style="text-align:right;">${parseFloat(o.Price).toFixed(2)}</td></tr>`;
+        });
+    }
+    if (!rows) rows = '<tr><td colspan="3" style="text-align:center;">දත්ත නොමැත</td></tr>';
+
+    return `<table class="simple-table">
+                <thead><tr><th>දිනය</th><th>විස්තරය</th><th style="text-align:right;">මුදල (Rs)</th></tr></thead>
+                <tbody>${rows}</tbody>
+            </table>`;
+}
+
+function generateFertilizerTableHtml(fertilizers) {
+    let rows = fertilizers && fertilizers.length > 0
+        ? fertilizers.map(f => `<tr><td>${f.Date}</td><td>${f.FertilizerType}</td><td>${f.Quantity}</td><td style="text-align:right;">${parseFloat(f.HalfPayment1).toFixed(2)}</td></tr>`).join('')
+        : '<tr><td colspan="4" style="text-align:center;">දත්ත නොමැත</td></tr>';
+
+    return `<table class="simple-table">
+                <thead><tr><th>දිනය</th><th>වර්ගය</th><th>Qty</th><th style="text-align:right;">ගෙවීම (Rs)</th></tr></thead>
+                <tbody>${rows}</tbody>
+            </table>`;
+}
+// ================= SEARCH CUSTOMER LOGIC =================
+// ================= SEARCH CUSTOMER LOGIC =================
+$('#btnSearchCustomer').on('click', async function () {
+    const query = $('#txtSearchCustomer').val().trim();
+    if (!query) return alert('කරුණාකර නමක් හෝ ID එකක් ඇතුළත් කරන්න!');
+
+    try {
+        const results = await window.api.customer.search(query);
+
+        if (results && results.length > 0) {
+            const customer = results[0];
+
+            // සියලුම පිටුවල ඇති dropdown හඳුනාගැනීම
+            const dropdown = $('#cmbOrderCustomerId, #cmbTeaCustomerId, #cmbSummaryCustomerID');
+
+            if (dropdown.find(`option[value="${customer.CustomerID}"]`).length > 0) {
+                dropdown.val(customer.CustomerID).trigger('change');
+
+                // විශේෂිතව Summary පිටුවේදී ස්වයංක්‍රීයව දත්ත Load කිරීම
+                if (window.location.href.includes('summary')) { // පිටුව summary නම් පමණක්
+                    $('#btnLoadSummaryData').click();
+                }
+
+                showToast(`Found: ${customer.Name}`, "success");
+            } else {
+                alert('මෙම පාරිභෝගිකයා ලැයිස්තුවේ හමු නොවීය!');
+            }
+        } else {
+            alert('පාරිභෝගිකයා හමු නොවීය!');
+        }
     } catch (err) {
-        console.error('Calculate error:', err);
-        alert('ගණනය කිරීමේදී දෝෂයක් ඇතිවුණා');
-    } finally {
-        $('#btnCalculateSummary').prop('disabled', false).text('Calculate');
+        console.error('Search error:', err);
+    }
+});
+// Enter key එක එබූ විටත් search වීමට
+$('#txtSearchCustomer').on('keypress', function (e) {
+    if (e.which === 13) {
+        $('#btnSearchCustomer').click();
     }
 });

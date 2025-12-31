@@ -111,34 +111,34 @@ $(document).ready(async function () {
   });
 
   // ================= Add Order =================
-    $('#btnTeaOrderAdd').click(async function () {
+  $('#btnTeaOrderAdd').click(async function () {
     const inventoryId = $('#cmbTeaInventoryId').val();
     const qty = Number($('#txtTeaOrderQuantity').val());
 
-    if(!inventoryId || qty <= 0){
-        return alert('Select inventory and enter valid quantity!');
+    if (!inventoryId || qty <= 0) {
+      return alert('Select inventory and enter valid quantity!');
     }
 
     const data = {
-        CustomerID: $('#cmbTeaCustomerId').val(),
-        TPinventoryId: inventoryId,
-        Quantity: qty,
-        Price: Number($('#txtTeaPricePerPacket').val()),
-        FullTotal: qty * Number($('#txtTeaPricePerPacket').val()),
-        OrderDate: $('#txtTeaOrderDate').val()
+      CustomerID: $('#cmbTeaCustomerId').val(),
+      TPinventoryId: inventoryId,
+      Quantity: qty,
+      Price: Number($('#txtTeaPricePerPacket').val()),
+      FullTotal: qty * Number($('#txtTeaPricePerPacket').val()),
+      OrderDate: $('#txtTeaOrderDate').val()
     };
 
     const result = await window.api.teaOrder.add(data);
 
-    if(result.success){
-        // update inventory quantity
-        await window.api.teaInventory.updateQuantity(inventoryId, -qty);
-        await loadOrders();
-        clearForm();
-    }else{
-        showToast("Failed to add: "+result.message);
+    if (result.success) {
+      // update inventory quantity
+      await window.api.teaInventory.updateQuantity(inventoryId, -qty);
+      await loadOrders();
+      clearForm();
+    } else {
+      showToast("Failed to add: " + result.message);
     }
-    });
+  });
 
 
   // ================= Update Order =================
@@ -175,4 +175,40 @@ $(document).ready(async function () {
   loadInventory();
   loadOrders();
   $('#txtTeaOrderDate').val(new Date().toISOString().split('T')[0]);
+});
+// ================= SEARCH CUSTOMER LOGIC =================
+$('#btnSearchCustomer').on('click', async function () {
+  const query = $('#txtSearchCustomer').val().trim();
+  if (!query) return alert('කරුණාකර නමක් හෝ ID එකක් ඇතුළත් කරන්න!');
+
+  try {
+    // Backend එකෙන් Search කිරීම (Service එකේ දැනටමත් search function එක ඇත)
+    const results = await window.api.customer.search(query);
+
+    if (results && results.length > 0) {
+      const customer = results[0]; // පළමු ප්‍රතිඵලය ලබා ගැනීම
+
+      // පිටුවේ ඇති Customer Dropdown එක හඳුනා ගැනීම (පිටුව අනුව ID එක වෙනස් විය හැක)
+      const dropdown = $('#cmbOrderCustomerId, #cmbTeaCustomerId, #cmbSummaryCustomerID');
+
+      // Dropdown එකේ අදාළ අගය තෝරා ගැනීම
+      if (dropdown.find(`option[value="${customer.CustomerID}"]`).length > 0) {
+        dropdown.val(customer.CustomerID).trigger('change');
+        showToast(`Found: ${customer.Name}`, "success");
+      } else {
+        alert('මෙම පාරිභෝගිකයා ලැයිස්තුවේ හමු නොවීය!');
+      }
+    } else {
+      alert('පාරිභෝගිකයා හමු නොවීය!');
+    }
+  } catch (err) {
+    console.error('Search error:', err);
+  }
+});
+
+// Enter key එක එබූ විටත් search වීමට
+$('#txtSearchCustomer').on('keypress', function (e) {
+  if (e.which === 13) {
+    $('#btnSearchCustomer').click();
+  }
 });

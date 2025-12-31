@@ -1,19 +1,93 @@
 console.log("Fertilizer Order loaded");
 
+// Global variable to store all customers
+let allCustomers = [];
+
 $(document).ready(async function () {
-    await loadNextId();
-    await loadTransport();
-    await loadFertilizerOrders();
+    await refreshFertilizerPage();
 
     const today = new Date().toISOString().split('T')[0];
     $("#txtOrderDate").val(today);
 
-    const customers = await window.api.customer.getAll();
+    // Enter key support for search box
+    $(document).on('keypress', '#txtSearchCustomer', function (e) {
+        if (e.which === 13) {
+            e.preventDefault();
+            $('#btnSearchCustomer').click();
+        }
+    });
+});
 
-    $("#cmbOrderCustomerId").empty();
-    $("#cmbOrderCustomerId").append(`<option value="">-- Select Customer --</option>`);
+// ================= REFRESH PAGE DATA =================
+async function refreshFertilizerPage() {
+    await loadNextId();
+    await loadTransport();
+    await loadFertilizerOrders();
+
+    console.log("🔍 Loading customers...");
+    allCustomers = await window.api.customer.getAll();
+    console.log("✅ Customers loaded:", allCustomers.length);
+
+    loadCustomerDropdown(allCustomers);
+    setupSearchHandlers();
+    clearFields();
+}
+
+// ================= SETUP SEARCH HANDLERS =================
+function setupSearchHandlers() {
+    console.log("🔧 Search handlers initializing...");
+
+    // කලින් තිබූ event ඉවත් කර අලුතින්ම සක්‍රීය කිරීම
+    $(document).off('click', '#btnSearchCustomer').on('click', '#btnSearchCustomer', function (e) {
+        e.preventDefault();
+
+        // jQuery වෙනුවට සෘජුවම Browser එකෙන් අගය ලබා ගැනීම
+        const searchInput = document.getElementById('txtSearchCustomer');
+        const query = searchInput ? searchInput.value.trim().toLowerCase() : "";
+
+        console.log("🔍 Final Search Check. Input Value:", query);
+
+        if (query === "") {
+            showToast("කරුණාකර නමක් හෝ ID එකක් ඇතුළත් කරන්න!", "warning");
+            return;
+        }
+
+        // පාරිභෝගිකයින් සිටීදැයි බැලීම (allCustomers array එක හිස්දැයි පරීක්ෂාව)
+        if (!allCustomers || allCustomers.length === 0) {
+            console.error("❌ Customer list is empty!");
+            showToast("පාරිභෝගික දත්ත පද්ධතියේ නැත!", "error");
+            return;
+        }
+
+        const found = allCustomers.find(c =>
+            (c.CustomerID && String(c.CustomerID).toLowerCase() === query) ||
+            (c.Name && String(c.Name).toLowerCase().includes(query))
+        );
+
+        if (found) {
+            console.log("✅ Match found:", found.Name);
+
+            // Dropdown එකේ අගය select කිරීම
+            $("#cmbOrderCustomerId").val(found.CustomerID).trigger('change');
+
+            // සෙවුම් කොටුව පිරිසිදු කිරීම
+            searchInput.value = "";
+            showToast(`සොයාගත්තා: ${found.Name}`, "success");
+        } else {
+            console.log("❌ No match found in the list.");
+            showToast("පාරිභෝගිකයා හමු නොවීය!", "error");
+        }
+    });
+}
+
+// ================= LOAD CUSTOMER DROPDOWN =================
+function loadCustomerDropdown(customers) {
+    const cmb = $("#cmbOrderCustomerId");
+    cmb.empty();
+    cmb.append(`<option value="">-- Select Customer --</option>`);
+
     customers.forEach(cus => {
-        $("#cmbOrderCustomerId").append(
+        cmb.append(
             `<option value="${cus.CustomerID}" 
                 data-name="${cus.Name}" 
                 data-phone="${cus.Phone}" 
@@ -22,9 +96,7 @@ $(document).ready(async function () {
             </option>`
         );
     });
-
-    clearFields(); // Clear form on load
-});
+}
 
 // ================= LOAD NEXT ID =================
 async function loadNextId() {
@@ -35,7 +107,6 @@ async function loadNextId() {
     } catch (error) {
         console.error(error);
         $("#txtDisplayOrderId").val("---");
-        $("#txtOrderId").val("");
     }
 }
 
@@ -47,19 +118,18 @@ async function loadTransport() {
         cmb.empty();
         cmb.append(`<option value="">-- Select Transporter --</option>`);
 
-        if (!transport || transport.length === 0) return;
-
-        transport.forEach(emp => {
-            cmb.append(`<option value="${emp.EmployeeID}">${emp.EmployeeID}-${emp.Name}</option>`);
-        });
+        if (transport) {
+            transport.forEach(emp => {
+                cmb.append(`<option value="${emp.EmployeeID}">${emp.EmployeeID}-${emp.Name}</option>`);
+            });
+        }
     } catch (error) {
         console.error("Failed to load transporters:", error);
-        showToast("Failed to load transporters", "error");
     }
 }
 
 // ================= LOAD INVENTORY BY TYPE =================
-$("input[name='orderFertilizerType']").on("change", async function () {
+$(document).on("change", "input[name='orderFertilizerType']", async function () {
     const type = $(this).val();
     const inventories = await window.api.fertilizerOrder.getInventoryByType(type);
 
@@ -83,7 +153,7 @@ $("input[name='orderFertilizerType']").on("change", async function () {
 });
 
 // ================= INVENTORY CHANGE =================
-$("#cmbFertilizerInventoryId").on("change", function () {
+$(document).on("change", "#cmbFertilizerInventoryId", function () {
     const selected = $(this).find("option:selected");
     const qty = selected.data("qty");
     const price = selected.data("price");
@@ -101,8 +171,7 @@ function updateTransportFee() {
     $("#lblTransportFee").text(`Transport Fee: Rs ${transportFee.toFixed(2)}`);
 }
 
-// Call updateTransportFee when quantity or transporter changes
-$("#txtOrderQuantity, #cmbOrderTransporterId").on("input change", updateTransportFee);
+$(document).on("input change", "#txtOrderQuantity, #cmbOrderTransporterId", updateTransportFee);
 
 // ================= ADD ORDER =================
 $("#btnOrderAdd").on("click", async function () {
@@ -113,14 +182,11 @@ $("#btnOrderAdd").on("click", async function () {
         const res = await window.api.fertilizerOrder.add(orderData);
         if (res.success) {
             showToast("Order added successfully!", "success");
-            await loadFertilizerOrders();
-            await loadNextId();
-            clearFields();
+            await refreshFertilizerPage();
         } else {
-            showToast("Failed to add order: " + res.message, "error");
+            showToast("Failed: " + res.message, "error");
         }
     } catch (error) {
-        console.error(error);
         showToast("Error processing order");
     }
 });
@@ -134,14 +200,9 @@ $("#btnOrderUpdate").on("click", async function () {
         const res = await window.api.fertilizerOrder.update(orderData);
         if (res.success) {
             showToast("Order updated successfully!", "success");
-            await loadFertilizerOrders();
-            clearFields();
-            await loadNextId();
-        } else {
-            showToast("Failed to update order: " + res.message, "error");
+            await refreshFertilizerPage();
         }
     } catch (error) {
-        console.error(error);
         showToast("Error updating order");
     }
 });
@@ -149,19 +210,12 @@ $("#btnOrderUpdate").on("click", async function () {
 // ================= DELETE ORDER =================
 $("#btnOrderDelete").on("click", async function () {
     const orderId = $("#txtOrderId").val();
-    if (!orderId) {
-        showToast("Select an order to delete!");
-        return;
-    }
+    if (!orderId) return showToast("Select an order!");
 
     const res = await window.api.fertilizerOrder.delete(orderId);
     if (res.success) {
-        showToast("Order deleted successfully!", "success");
-        await loadFertilizerOrders();
-        await loadNextId();
-        clearFields();
-    } else {
-        showToast("Failed to delete order: " + res.message, "error");
+        showToast("Order deleted!", "success");
+        await refreshFertilizerPage();
     }
 });
 
@@ -172,24 +226,20 @@ function collectOrderData(isUpdate = false) {
     const customerName = $("#cmbOrderCustomerId option:selected").data("name");
     const fertilizerType = $("input[name='orderFertilizerType']:checked").val();
     const inventoryId = $("#cmbFertilizerInventoryId").val();
-    const availableQty = Number($("#lblAvailableQty").val().replace(" kg", "")) + (isUpdate ? Number($("#txtOrderQuantity").val()) : 0);
+    const availableQtyStr = $("#lblAvailableQty").val() || "0";
+    const availableQty = Number(availableQtyStr.replace(" kg", ""));
     const orderQty = Number($("#txtOrderQuantity").val());
     const pricePerKg = Number($("#txtPricePerKg").val());
     const transporterId = $("#cmbOrderTransporterId").val();
     const date = $("#txtOrderDate").val();
-    const transportFee = transporterId ? orderQty * 2 : 0;
 
     if (!orderId || !customerId || !fertilizerType || !inventoryId || !orderQty || !pricePerKg) {
-        showToast("Please fill all required fields!");
-        return null;
-    }
-
-    if (orderQty > availableQty) {
-        showToast("Order quantity exceeds available stock!");
+        showToast("Please fill all required fields!", "warning");
         return null;
     }
 
     const totalPrice = orderQty * pricePerKg;
+    const transportFee = transporterId ? orderQty * 2 : 0;
     const halfPayment1 = orderQty > 20 ? Math.floor(totalPrice / 2) : totalPrice;
     const halfPayment2 = orderQty > 20 ? totalPrice - halfPayment1 : 0;
 
@@ -217,20 +267,13 @@ async function loadFertilizerOrders() {
         tbody.empty();
 
         if (!orders || orders.length === 0) {
-            tbody.append(`
-                <tr>
-                    <td colspan="10" class="text-center py-4 text-muted">
-                        <i class="bi bi-inbox fs-1 d-block mb-2"></i>
-                        No orders found
-                    </td>
-                </tr>
-            `);
+            tbody.append('<tr><td colspan="10" class="text-center">No orders found</td></tr>');
             return;
         }
 
         orders.forEach(order => {
             tbody.append(`
-                <tr data-id="${order.OrderID}">
+                <tr data-id="${order.OrderID}" style="cursor:pointer">
                     <td>${order.OrderID}</td>
                     <td>${order.CustomerName || '-'}</td>
                     <td>${order.FertilizerType}</td>
@@ -245,8 +288,7 @@ async function loadFertilizerOrders() {
             `);
         });
     } catch (error) {
-        console.error("Failed to load fertilizer orders:", error);
-        showToast("Failed to load orders", "error");
+        console.error("Load table error:", error);
     }
 }
 
@@ -257,71 +299,34 @@ $(document).on("click", "#tblFertilizerOrders tr[data-id]", async function () {
     const order = orders.find(o => o.OrderID === orderId);
     if (!order) return;
 
-    // Enable Update, Disable Add
     $("#btnOrderUpdate").prop("disabled", false);
     $("#btnOrderAdd").prop("disabled", true);
 
-    // Fill Order ID
     $("#txtOrderId").val(order.OrderID);
     $("#txtDisplayOrderId").val(order.OrderID);
-
-    // Fill Customer
     $("#cmbOrderCustomerId").val(order.CustomerID);
+    $("input[name='orderFertilizerType'][value='" + order.FertilizerType + "']").prop("checked", true).trigger('change');
 
-    // Fill Fertilizer Type
-    $("input[name='orderFertilizerType'][value='" + order.FertilizerType + "']").prop("checked", true);
-
-    // Load inventory by type
-    const inventories = await window.api.fertilizerOrder.getInventoryByType(order.FertilizerType);
-    const cmb = $("#cmbFertilizerInventoryId");
-    cmb.empty();
-    cmb.append(`<option value="">-- Select Inventory --</option>`);
-
-    inventories.forEach(inv => {
-        cmb.append(`
-            <option value="${inv.FInventoryId}" data-qty="${inv.Quantity}" data-price="${inv.SellPrice}">
-                ${inv.FInventoryId}
-            </option>
-        `);
-    });
-
-    // Select inventory
-    $("#cmbFertilizerInventoryId").val(order.FInventoryID).trigger("change");
-
-    // Fill Quantity
-    $("#txtOrderQuantity").val(order.Quantity);
-
-    // Fill Price per Kg
-    const pricePerKg = (order.Quantity > 0) ? (order.Price / order.Quantity).toFixed(2) : 0;
-    $("#txtPricePerKg").val(pricePerKg);
-
-    // Fill Transporter
-    $("#cmbOrderTransporterId").val(order.TransporterID);
-
-    // Fill Date
-    $("#txtOrderDate").val(order.Date);
-
-    // Update Transport Fee
-    const transportFee = order.TransporterID ? order.Quantity * 2 : 0;
-    $("#lblTransportFee").text(`Transport Fee: Rs ${transportFee.toFixed(2)}`);
-
-    // Fill Available Qty
-    const availableQty = $("#cmbFertilizerInventoryId option:selected").data("qty") || 0;
-    $("#lblAvailableQty").val(availableQty + " kg");
+    // Wait for inventory dropdown to load
+    setTimeout(() => {
+        $("#cmbFertilizerInventoryId").val(order.FInventoryID).trigger("change");
+        $("#txtOrderQuantity").val(order.Quantity);
+        $("#cmbOrderTransporterId").val(order.TransporterID).trigger('change');
+        $("#txtOrderDate").val(order.Date);
+    }, 500);
 });
 
 // ================= CLEAR FORM =================
 function clearFields() {
     $("#cmbOrderCustomerId").val("");
     $("input[name='orderFertilizerType']").prop("checked", false);
-    $("#cmbFertilizerInventoryId").val("");
+    $("#cmbFertilizerInventoryId").empty().append('<option value="">-- Select Inventory --</option>');
     $("#txtOrderQuantity").val("");
     $("#txtPricePerKg").val("");
     $("#cmbOrderTransporterId").val("");
     $("#lblAvailableQty").val("0 kg");
     $("#lblTransportFee").text("Transport Fee: Rs 0.00");
-
-    // Buttons
     $("#btnOrderUpdate").prop("disabled", true);
     $("#btnOrderAdd").prop("disabled", false);
+    $("#txtSearchCustomer").val("");
 }

@@ -69,17 +69,27 @@ class CustomerService {
     }
   }
 
-  search(query) {
-    const searchTerm = `%${query}%`;
-    const rows = db.prepare(`
-      SELECT * FROM Customer
-      WHERE CustomerID LIKE ? OR Name LIKE ?
-      ORDER BY Name
-      LIMIT 20
-    `).all(searchTerm, searchTerm);
+  searchCustomer(query) {
+    if (!query || query.trim() === '') return [];
 
-    return rows.map(row => Customer.fromDB(row).toJSON());
+    try {
+      const search = `%${query}%`;
+
+      return db.prepare(`
+      SELECT CustomerID, Name, Phone, TransportRequired
+      FROM Customer
+      WHERE LOWER(CustomerID) LIKE LOWER(?)
+         OR LOWER(Name) LIKE LOWER(?)
+      ORDER BY Name
+      LIMIT 10
+    `).all(search, search);
+
+    } catch (err) {
+      console.error('❌ searchCustomer error:', err);
+      return [];
+    }
   }
+
 }
 
 export default new CustomerService(); 

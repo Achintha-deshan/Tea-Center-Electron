@@ -33,9 +33,8 @@ export function registerCustomerHandlers() {
     return customerService.getById(customerId);
   });
 
-  // Search customers
-  ipcMain.handle('customer:search', (event, searchTerm) => {
-    return customerService.search(searchTerm);
+  ipcMain.handle('customer:search', (event, query) => {
+    return customerService.searchCustomer(query);
   });
 
   console.log('✅ Customer handlers registered');

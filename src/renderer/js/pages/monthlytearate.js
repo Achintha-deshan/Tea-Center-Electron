@@ -1,5 +1,3 @@
-// src/renderer/js/monthlytearate.js
-
 let currentMonthlyData = [];
 
 $(document).ready(async function () {
@@ -29,7 +27,7 @@ $(document).ready(async function () {
   $("#txtDate").val(today);
 
   document.getElementById('tblPayments').innerHTML =
-    `<tr><td colspan="6" class="text-center text-muted">Click "Load Data" to begin</td></tr>`; 
+    `<tr><td colspan="6" class="text-center text-muted">Click "Load Data" to begin</td></tr>`;
 });
 
 // ==================== LOAD NEXT ID ====================
@@ -38,10 +36,10 @@ async function loadNextId() {
     const nextId = await window.api.Monthlyrate.getNextId();
     $("#txtDisplaytxtmonthlytearateID").val(nextId);
     $("#txtmonthlytearateID").val(nextId);
+    console.log("Next ID Set:", nextId);
   } catch (error) {
     console.error('Load next ID error:', error);
     $("#txtDisplaytxtmonthlytearateID").val("---");
-    $("#txtmonthlytearateID").val("---");
   }
 }
 
@@ -55,9 +53,10 @@ async function loadMonthlyRawTea() {
 
     if (!result || !result.data || result.data.length === 0) {
       document.getElementById('tblPayments').innerHTML =
-        `<tr><td colspan="6" class="text-center">No records found for ${year}-${String(month).padStart(2,'0')}</td></tr>`;
+        `<tr><td colspan="6" class="text-center">No records found for ${year}-${String(month).padStart(2, '0')}</td></tr>`;
       currentMonthlyData = [];
       $('#btnUpdate').prop('disabled', true);
+      updateSummaryLabels(0, 0, 0); // Reset summary
       return;
     }
 
@@ -67,10 +66,14 @@ async function loadMonthlyRawTea() {
       displayCalculatedData(result.data);
       $('#btnUpdate').prop('disabled', false);
       showToast('Loaded saved payments', 'success');
+      // Saved data load වුණාම row එකක් select කරනකම් ID එක Clear කරමු
+      $("#txtDisplaytxtmonthlytearateID").val("---");
+      $("#txtmonthlytearateID").val("");
     } else {
       displayRawData(result.data);
       $('#btnUpdate').prop('disabled', true);
       showToast('Raw data loaded – enter rates and Calculate', 'info');
+      await loadNextId(); // අලුත් calculations සඳහා ID එක ගමු
     }
 
   } catch (err) {
@@ -79,39 +82,78 @@ async function loadMonthlyRawTea() {
   }
 }
 
-// ==================== DISPLAY FUNCTIONS ====================
-function displayRawData(data) {
-  const tbl = document.getElementById('tblPayments');
-  tbl.innerHTML = '';
-  data.forEach(row => {
-    const tr = document.createElement('tr');
-    tr.innerHTML = `
-      <td>${row.CustomerID}</td>
-      <td>${row.BestTeaKg.toFixed(2)}</td>
-      <td>${row.NormalTeaKg.toFixed(2)}</td>
-      <td colspan="3" class="text-muted text-center">Not calculated</td>
-    `;
-    tbl.appendChild(tr);
-  });
+// ==================== DISPLAY & SUMMARY ====================
+function updateSummaryLabels(best, normal, total) {
+  $('#lblTotalBest').text(`Total Best: ${best.toFixed(2)} kg`);
+  $('#lblTotalNormal').text(`Total Normal: ${normal.toFixed(2)} kg`);
+  $('#lblTotalAmount').text(`Total Amount: Rs ${total.toFixed(2)}`);
 }
 
-function displayCalculatedData(data) {
+function displayRawData(data) {
+  let tBest = 0, tNormal = 0;
   const tbl = document.getElementById('tblPayments');
   tbl.innerHTML = '';
   data.forEach(row => {
+    tBest += row.BestTeaKg;
+    tNormal += row.NormalTeaKg;
     const tr = document.createElement('tr');
     tr.style.cursor = 'pointer';
     tr.innerHTML = `
-      <td>${row.CustomerID}</td>
-      <td>${row.BestTeaKg.toFixed(2)}</td>
-      <td>${row.NormalTeaKg.toFixed(2)}</td>
-      <td>Rs ${row.BestTeaPrice.toFixed(2)}</td>
-      <td>Rs ${row.NormalTeaPrice.toFixed(2)}</td>
-      <td><strong>Rs ${row.FullTotal.toFixed(2)}</strong></td>
-    `;
+            <td>${row.CustomerID}</td>
+            <td>${row.BestTeaKg.toFixed(2)}</td>
+            <td>${row.NormalTeaKg.toFixed(2)}</td>
+            <td colspan="3" class="text-muted text-center">Not calculated</td>
+        `;
     tbl.appendChild(tr);
   });
+  updateSummaryLabels(tBest, tNormal, 0);
 }
+
+function displayCalculatedData(data) {
+  let tBest = 0, tNormal = 0, tTotal = 0;
+  const tbl = document.getElementById('tblPayments');
+  tbl.innerHTML = '';
+  data.forEach(row => {
+    tBest += row.BestTeaKg;
+    tNormal += row.NormalTeaKg;
+    tTotal += row.FullTotal;
+    const tr = document.createElement('tr');
+    tr.style.cursor = 'pointer';
+    tr.innerHTML = `
+            <td>${row.CustomerID}</td>
+            <td>${row.BestTeaKg.toFixed(2)}</td>
+            <td>${row.NormalTeaKg.toFixed(2)}</td>
+            <td>Rs ${row.BestTeaPrice.toFixed(2)}</td>
+            <td>Rs ${row.NormalTeaPrice.toFixed(2)}</td>
+            <td><strong>Rs ${row.FullTotal.toFixed(2)}</strong></td>
+        `;
+    tbl.appendChild(tr);
+  });
+  updateSummaryLabels(tBest, tNormal, tTotal);
+}
+
+// ==================== ROW SELECT ====================
+$(document).on('click', '#tblPayments tr', async function () {
+  const index = $(this).index();
+  if (index < 0 || currentMonthlyData.length === 0) return;
+
+  const row = currentMonthlyData[index];
+  if (!row || row.CustomerID === undefined) return;
+
+  $(this).addClass('table-primary').siblings().removeClass('table-primary');
+  $("#txtSelectedIndex").val(index);
+
+  if (row.PaymentID) {
+    $("#txtmonthlytearateID").val(row.PaymentID);
+    $("#txtDisplaytxtmonthlytearateID").val(row.PaymentID);
+  } else {
+    await loadNextId();
+  }
+
+  $("#txtBestTeaRate").val(row.BestTeaRate || '');
+  $("#txtNormalTeaRate").val(row.NormalTeaRate || '');
+  $("#txtDate").val(row.Date || new Date().toISOString().split('T')[0]);
+});
 
 // ==================== BUTTONS ====================
 $(document).on('click', '#btnLoad', () => loadMonthlyRawTea());
@@ -125,7 +167,7 @@ $(document).on('click', '#btnCalculate', async function () {
 
   const year = parseInt(document.getElementById('cmbYear').value);
   const month = parseInt(document.getElementById('cmbMonth').value);
-  const date = $('#txtDate').val() || new Date().toISOString().split('T')[0];
+  const date = $('#txtDate').val();
 
   const calculations = currentMonthlyData.map(row => ({
     CustomerID: row.CustomerID,
@@ -147,52 +189,19 @@ $(document).on('click', '#btnCalculate', async function () {
     res.success ? success++ : failed++;
   }
 
-  $('#txtBestTeaRate').val('');
-  $('#txtNormalTeaRate').val('');
-  await loadNextId();
-
   displayCalculatedData(calculations);
   currentMonthlyData = calculations;
   $('#btnUpdate').prop('disabled', false);
+  await loadNextId();
 
-  showToast(failed === 0
-    ? `${success} payments saved successfully!`
-    : `Partial: ${success} saved, ${failed} failed`,
-    failed === 0 ? 'success' : 'warning');
+  showToast(failed === 0 ? `${success} payments saved!` : `Error: ${failed} failed`, failed === 0 ? 'success' : 'error');
 });
 
-// ==================== ROW SELECT ====================
-$(document).on('click', '#tblPayments tr', function () {
-  const index = $(this).index();
-  if (index < 0) return;
-
-  const row = currentMonthlyData[index];
-  if (!row) return;
-
-  $(this).addClass('table-primary').siblings().removeClass('table-primary');
-
-  // Fill PaymentID if exists
-  if (row.PaymentID) {
-    $("#txtmonthlytearateID").val(row.PaymentID);
-    $("#txtDisplaytxtmonthlytearateID").val(row.PaymentID);
-  }
-
-  $("#txtSelectedIndex").val(index);
-  $("#txtBestTeaRate").val(row.BestTeaRate || '');
-  $("#txtNormalTeaRate").val(row.NormalTeaRate || '');
-
-  // ✅ Default today date if row.Date missing
-  const today = new Date().toISOString().split('T')[0];
-  $("#txtDate").val(row.Date ? row.Date : today);
-});
-
-// ==================== UPDATE BUTTON ====================
 $(document).on('click', '#btnUpdate', async function () {
   const index = parseInt($("#txtSelectedIndex").val());
-  if (isNaN(index) || index < 0) return showToast('Select a row to update', 'warning');
+  const paymentId = $("#txtmonthlytearateID").val();
 
-  const paymentId = $("#txtmonthlytearateID").val().trim();
-  if (!paymentId || paymentId === '---') return showToast('Cannot update raw data. Save first.', 'warning');
+  if (isNaN(index) || !paymentId) return showToast('Select a saved row to update', 'warning');
 
   const row = currentMonthlyData[index];
   const bestRate = parseFloat($("#txtBestTeaRate").val()) || 0;
@@ -201,11 +210,7 @@ $(document).on('click', '#btnUpdate', async function () {
   const updated = {
     PaymentID: paymentId,
     CustomerID: row.CustomerID,
-    Year: row.Year,
-    Month: row.Month,
-    Date: $("#txtDate").val() || new Date().toISOString().split('T')[0],
-    BestTeaKg: row.BestTeaKg,
-    NormalTeaKg: row.NormalTeaKg,
+    Date: $("#txtDate").val(),
     BestTeaRate: bestRate,
     NormalTeaRate: normalRate,
     BestTeaPrice: row.BestTeaKg * bestRate,
@@ -213,42 +218,20 @@ $(document).on('click', '#btnUpdate', async function () {
     FullTotal: (row.BestTeaKg * bestRate) + (row.NormalTeaKg * normalRate)
   };
 
-  try {
-    const result = await window.api.Monthlyrate.update(updated);
-    if (result.success) {
-      currentMonthlyData[index] = { ...updated, PaymentID: paymentId };
-      displayCalculatedData(currentMonthlyData);
-
-      $("#txtDisplaytxtmonthlytearateID").val(paymentId);
-      $("#txtmonthlytearateID").val(paymentId);
-      $("#txtBestTeaRate").val('');
-      $("#txtNormalTeaRate").val('');
-      $('#tblPayments tr').removeClass('table-primary');
-      $("#txtSelectedIndex").val('');
-
-      showToast('Payment updated successfully!', 'success');
-      await loadNextId();
-    } else {
-      showToast('Update failed: ' + (result.message || ''), 'error');
-    }
-  } catch (err) {
-    console.error(err);
-    showToast('Connection error', 'error');
+  const res = await window.api.Monthlyrate.update({ ...row, ...updated });
+  if (res.success) {
+    currentMonthlyData[index] = { ...row, ...updated };
+    displayCalculatedData(currentMonthlyData);
+    showToast('Updated successfully', 'success');
+    await loadNextId();
   }
 });
 
-// ==================== CLEAR BUTTON ====================
 $(document).on('click', '#btnClear', function () {
   loadNextId();
-  $('#txtBestTeaRate').val('');
-  $('#txtNormalTeaRate').val('');
+  $('#txtBestTeaRate, #txtNormalTeaRate').val('');
   $('#txtDate').val(new Date().toISOString().split('T')[0]);
   $('#tblPayments tr').removeClass('table-primary');
   $("#txtSelectedIndex").val('');
   showToast('Form cleared', 'info');
-
-   document.getElementById('tblPayments').innerHTML =
-    `<tr><td colspan="6" class="text-center text-muted">Click "Load Data" to begin</td></tr>`; 
 });
-
-console.log('Monthly Tea Rate page – Update, Clear & ID display fixed with default today date!');

@@ -45,5 +45,12 @@ export function registerCustomerMonthlySummary() {
         }
     });
 
+    ipcMain.handle('summary:getNextId', async () => {
+        try {
+            return CustomerSummaryService.generateNextSummaryId();
+        } catch (err) {
+            return 'CMP0001';
+        }
+    });
     console.log('Customer Monthly Summary handlers registered');
 }

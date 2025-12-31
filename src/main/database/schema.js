@@ -7,6 +7,7 @@ export function createTables() {
   db.exec(`
     PRAGMA foreign_keys = ON;
 
+
     CREATE TABLE IF NOT EXISTS Customer (
       CustomerID TEXT PRIMARY KEY,
       Name TEXT NOT NULL,
