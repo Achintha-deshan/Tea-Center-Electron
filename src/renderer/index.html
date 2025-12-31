@@ -1,0 +1,3380 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tea Center - Management System</title>
+
+    <link rel="stylesheet" href="css/css/bootstrap.min.css" />
+    <link
+      rel="stylesheet"
+      href="icon/bootstrap-icons-1.13.1/bootstrap-icons.css"
+    />
+
+    <style>
+      body {
+        font-family: "Segoe UI", sans-serif;
+        background: #f0f2f5;
+        min-height: 100vh;
+      }
+
+      /* Sidebar */
+      .sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 100vh;
+        width: 280px;
+        background: #ffffff;
+        box-shadow: 4px 0 20px rgba(0, 0, 0, 0.08);
+        z-index: 1000;
+        overflow-y: auto;
+        transition: transform 0.3s ease;
+      }
+
+      .sidebar-header {
+        background: linear-gradient(135deg, #198754, #146c43);
+        color: white;
+        padding: 2rem 1.5rem;
+        text-align: center;
+      }
+
+      .logo-icon {
+        width: 70px;
+        height: 70px;
+        background: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1rem;
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+      }
+
+      .nav-link {
+        color: #495057;
+        padding: 0.875rem 1.5rem;
+        border-radius: 0 50px 50px 0;
+        margin: 0.25rem 1rem;
+        transition: all 0.3s ease;
+      }
+
+      .nav-link:hover {
+        background: #e8f5e8;
+        color: #198754;
+        transform: translateX(8px);
+      }
+
+      .nav-link.active {
+        background: #198754;
+        color: white;
+        font-weight: 600;
+      }
+
+      .nav-link i {
+        width: 28px;
+        text-align: center;
+      }
+
+      /* Main Content */
+      .main-content {
+        margin-left: 280px;
+        padding: 2rem;
+        min-height: 100vh;
+        transition: margin-left 0.3s ease;
+      }
+
+      /* Mobile Responsive */
+      @media (max-width: 992px) {
+        .sidebar {
+          transform: translateX(-100%);
+        }
+        .sidebar.show {
+          transform: translateX(0);
+        }
+        .main-content {
+          margin-left: 0;
+        }
+        .mobile-menu-btn {
+          display: block !important;
+        }
+      }
+
+      .mobile-menu-btn {
+        display: none;
+        position: fixed;
+        top: 1rem;
+        left: 1rem;
+        z-index: 1001;
+        background: white;
+        border: 1px solid #dee2e6;
+        padding: 0.75rem;
+        border-radius: 0.5rem;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      }
+
+      /* Cards */
+      .stat-card {
+        border: none;
+        border-radius: 16px;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s ease;
+      }
+
+      .stat-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+      }
+
+      .stat-icon {
+        width: 65px;
+        height: 65px;
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+      }
+
+      /* Login */
+      .login-container {
+        min-height: 100vh;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .login-card {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 25px 50px rgba(0, 0, 0, 0.4);
+        width: 420px;
+        max-width: 90%;
+      }
+
+      /* Module Cards */
+      .module-card {
+        transition: all 0.4s ease;
+        cursor: pointer;
+        border: none;
+        height: 100%;
+      }
+
+      .module-card:hover {
+        transform: translateY(-12px);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+      }
+
+      .module-icon {
+        width: 90px;
+        height: 90px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 3rem;
+        margin-bottom: 1.5rem;
+      }
+
+      .payment-section {
+        padding: 40px;
+        background: #f3f4f6;
+      }
+
+      .payment-section h2 {
+        font-size: 28px;
+        margin-bottom: 40px;
+        text-align: center;
+        font-weight: bold;
+      }
+
+      .payment-cards {
+        display: flex;
+        justify-content: center;
+        gap: 40px;
+        flex-wrap: wrap;
+      }
+
+      .payment-card {
+        width: 260px;
+        height: 180px;
+        border-radius: 18px;
+        color: #fff;
+        cursor: pointer;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        transition: all 0.3s ease;
+      }
+
+      .payment-card .icon {
+        font-size: 48px;
+        margin-bottom: 10px;
+      }
+
+      .payment-card h3 {
+        font-size: 20px;
+        font-weight: bold;
+      }
+
+      /* Card Colors */
+      .payment-card.advance {
+        background: linear-gradient(135deg, #f59e0b, #fbbf24);
+      }
+
+      .payment-card.other {
+        background: linear-gradient(135deg, #ef4444, #f87171);
+      }
+
+      .payment-card.summary {
+        background: linear-gradient(135deg, #3b82f6, #60a5fa);
+      }
+
+      /* Hover Effect */
+      .payment-card:hover {
+        transform: translateY(-10px) scale(1.05);
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+      }
+
+      #transporterSection {
+  transition: all 0.3s ease;
+}
+    </style>
+  </head>
+
+  <body>
+    <!-- Mobile Menu Button -->
+    <button class="mobile-menu-btn" id="mobileMenuBtn">
+      <i class="bi bi-list fs-3"></i>
+    </button>
+
+    <!-- LOGIN SECTION -->
+    <div id="loginSection" class="login-container">
+      <div class="login-card">
+        <div class="card-body p-5 text-center">
+          <div class="logo-icon mb-4 mx-auto">
+            <i class="bi bi-cup-hot-fill text-success fs-1"></i>
+          </div>
+          <h1 class="fw-bold mb-2">Tea Center</h1>
+          <p class="text-muted mb-4">Management System</p>
+
+          <form id="loginForm">
+            <div class="mb-4 text-start">
+              <label class="form-label fw-semibold">Username</label>
+              <input
+                id="loginUsername"
+                type="text"
+                class="form-control form-control-lg"
+                placeholder="Enter username"
+                required
+              />
+            </div>
+            <div class="mb-4 text-start">
+              <label class="form-label fw-semibold">Password</label>
+              <input
+                id="loginPassword"
+                type="password"
+                class="form-control form-control-lg"
+                placeholder="Enter password"
+                required
+              />
+            </div>
+            <button
+              id="btnLogin"
+              type="submit"
+              class="btn btn-success w-100 py-3 rounded-pill fw-bold"
+            >
+              <i class="bi bi-box-arrow-in-right me-2"></i>Login
+            </button>
+            <p id="loginMessage" class="text-danger mt-3 fw-medium"></p>
+          </form>
+        </div>
+      </div>
+    </div>
+    <!-- Logout Confirmation Modal -->
+    <div class="modal fade" id="logoutConfirmModal">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5>⚠️ Confirm Logout</h5>
+          </div>
+          <div class="modal-body">Are you sure you want to logout?</div>
+          <div class="modal-footer">
+            <button class="btn btn-secondary" data-bs-dismiss="modal">
+              Cancel
+            </button>
+            <button class="btn btn-danger" id="confirmLogoutBtn">Logout</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MAIN APP -->
+    <div id="appSection" class="d-none">
+      <!-- Sidebar -->
+      <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+          <div class="logo-icon">
+            <i class="bi bi-cup-hot-fill text-success fs-1"></i>
+          </div>
+          <h4 class="mb-0">Tea Center</h4>
+          <small>Management System</small>
+        </div>
+
+        <nav class="p-3">
+          <a class="nav-link active" href="#" data-section="dashboardSection">
+            <i class="bi bi-speedometer2"></i> Dashboard
+          </a>
+          <a class="nav-link" href="#" data-section="customerManagementSection">
+            <i class="bi bi-person-badge-fill"></i> Customer
+          </a>
+          <a class="nav-link" href="#" data-section="employeeManagementSection">
+            <i class="bi bi-people-fill"></i> Employee
+          </a>
+          <a
+            class="nav-link"
+            href="#"
+            data-section="teaFactoryManagementSection"
+          >
+            <i class="bi bi-building"></i> Tea Factory
+          </a>
+          <a class="nav-link" href="#" data-section="rawTeaInventorySection">
+            <i class="bi bi-box-seam-fill"></i> Raw Tea Inventory
+          </a>
+          <a class="nav-link" href="#" data-section="fertilizerSection">
+            <i class="bi bi-tree-fill"></i> Fertilizer
+          </a>
+          <a class="nav-link" href="#" data-section="teaProductMainSection">
+            <i class="bi bi-box2-fill"></i> Tea Product
+          </a>
+          <a class="nav-link" href="#" data-section="Monthlyratesection">
+            <i class="bi bi-gear-fill"></i> Monthly Rate
+          </a>
+          <a class="nav-link" href="#" data-section="customerAcc">
+            <i class="bi bi-gear-fill"></i> Customer Acount
+          </a>
+          <a class="nav-link" href="#" data-section="userManagementSection">
+            <i class="bi bi-gear-fill"></i> User Management
+          </a>
+        </nav>
+
+        <div class="p-4 border-top">
+          <button id="btnLogout" class="btn btn-danger w-100 rounded-pill py-3">
+            <i class="bi bi-box-arrow-right me-2"></i> Logout
+          </button>
+        </div>
+      </aside>
+      <!-- Success Toast Notification -->
+      <div class="position-fixed top-0 end-0 p-3" style="z-index: 11000">
+        <div
+          id="successToast"
+          class="toast align-items-center text-white bg-success border-0"
+          role="alert"
+          aria-live="assertive"
+          aria-atomic="true"
+        >
+          <div class="d-flex">
+            <div class="toast-body">
+              <i class="bi bi-check-circle-fill me-2"></i>
+              <span id="toastMessage">Action completed successfully!</span>
+            </div>
+            <button
+              type="button"
+              class="btn-close btn-close-white me-2 m-auto"
+              data-bs-dismiss="toast"
+              aria-label="Close"
+            ></button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Error Toast Notification -->
+      <div class="position-fixed top-0 end-0 p-3" style="z-index: 11000">
+        <div
+          id="errorToast"
+          class="toast align-items-center text-white bg-danger border-0"
+          role="alert"
+          aria-live="assertive"
+          aria-atomic="true"
+        >
+          <div class="d-flex">
+            <div class="toast-body">
+              <i class="bi bi-exclamation-triangle-fill me-2"></i>
+              <span id="errorMessage">An error occurred!</span>
+            </div>
+            <button
+              type="button"
+              class="btn-close btn-close-white me-2 m-auto"
+              data-bs-dismiss="toast"
+              aria-label="Close"
+            ></button>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal fade" id="confirmModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+          <div class="modal-content">
+            <div class="modal-header" id="confirmModalHeader">
+              <h5 class="modal-title" id="confirmModalTitle">
+                <i class="bi bi-question-circle-fill me-2"></i>
+                Confirm Action
+              </h5>
+              <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="modal"
+              ></button>
+            </div>
+            <div class="modal-body">
+              <p id="confirmModalMessage" class="mb-0">
+                Are you sure you want to proceed?
+              </p>
+              <div
+                id="confirmModalDetails"
+                class="alert alert-info mt-3 mb-0"
+                style="display: none"
+              ></div>
+            </div>
+            <div class="modal-footer">
+              <button
+                type="button"
+                class="btn btn-secondary"
+                data-bs-dismiss="modal"
+              >
+                <i class="bi bi-x-circle me-1"></i> Cancel
+              </button>
+              <button type="button" class="btn btn-danger" id="confirmModalBtn">
+                <i class="bi bi-check-circle me-1"></i> Confirm
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Main Content -->
+      <main class="main-content">
+        <!-- ==================== DASHBOARD SECTION ==================== -->
+        <section id="dashboardSection" class="d-none">
+          <div class="container-fluid py-4">
+            <!-- Header with User Info -->
+            <div class="row align-items-center mb-5">
+              <div class="col-lg-8">
+                <h1 class="display-5 fw-bold text-primary mb-2">
+                  <i class="bi bi-speedometer2 me-3"></i>Dashboard Overview
+                </h1>
+                <p class="text-muted fs-5 mb-0">
+                  Welcome back! Here's what's happening today.
+                </p>
+              </div>
+
+              <!-- Logged User Info (Top Right) -->
+              <div class="col-lg-4">
+                <div
+                  class="bg-white rounded-4 shadow-sm p-4 d-flex align-items-center justify-content-end gap-4"
+                >
+                  <div class="text-end">
+                    <div class="fw-bold fs-4 text-dark" id="loggedUsername">
+                      User
+                    </div>
+                    <div class="badge fs-6 px-3 py-2" id="loggedRoleBadge">
+                      Role
+                    </div>
+                  </div>
+                  <div
+                    class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center"
+                    style="
+                      width: 70px;
+                      height: 70px;
+                      font-size: 2.2rem;
+                      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+                    "
+                  >
+                    <i class="bi bi-person-fill"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Stats Cards -->
+            <div class="row g-4 mb-5">
+              <div class="col-xl-3 col-md-6">
+                <div class="stat-card h-100">
+                  <div class="card-body p-4">
+                    <div
+                      class="d-flex align-items-center justify-content-between"
+                    >
+                      <div>
+                        <p class="text-muted fw-medium mb-2">Total Users</p>
+                        <h2 class="fw-bold text-primary mb-0" id="totalUsers">
+                          0
+                        </h2>
+                      </div>
+                      <div
+                        class="stat-icon bg-primary bg-opacity-10 text-primary"
+                      >
+                        <i class="bi bi-people-fill fs-2"></i>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-xl-3 col-md-6">
+                <div class="stat-card h-100">
+                  <div class="card-body p-4">
+                    <div
+                      class="d-flex align-items-center justify-content-between"
+                    >
+                      <div>
+                        <p class="text-muted fw-medium mb-2">Administrators</p>
+                        <h2 class="fw-bold text-danger mb-0" id="countAdmins">
+                          0
+                        </h2>
+                      </div>
+                      <div
+                        class="stat-icon bg-danger bg-opacity-10 text-danger"
+                      >
+                        <i class="bi bi-shield-lock fs-2"></i>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-xl-3 col-md-6">
+                <div class="stat-card h-100">
+                  <div class="card-body p-4">
+                    <div
+                      class="d-flex align-items-center justify-content-between"
+                    >
+                      <div>
+                        <p class="text-muted fw-medium mb-2">Managers</p>
+                        <h2 class="fw-bold text-info mb-0" id="countManagers">
+                          0
+                        </h2>
+                      </div>
+                      <div class="stat-icon bg-info bg-opacity-10 text-info">
+                        <i class="bi bi-person-fill-gear fs-2"></i>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-xl-3 col-md-6">
+                <div class="stat-card h-100">
+                  <div class="card-body p-4">
+                    <div
+                      class="d-flex align-items-center justify-content-between"
+                    >
+                      <div>
+                        <p class="text-muted fw-medium mb-2">Employees</p>
+                        <h2
+                          class="fw-bold text-success mb-0"
+                          id="countEmployees"
+                        >
+                          0
+                        </h2>
+                      </div>
+                      <div
+                        class="stat-icon bg-success bg-opacity-10 text-success"
+                      >
+                        <i class="bi bi-person-fill fs-2"></i>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Welcome Card -->
+            <div class="row">
+              <div class="col-12">
+                <div class="card border-0 shadow-lg overflow-hidden">
+                  <div
+                    class="card-body p-5 text-white"
+                    style="
+                      background: linear-gradient(135deg, #198754, #146c43);
+                    "
+                  >
+                    <h2 class="fw-bold mb-3">
+                      Welcome back,
+                      <span id="welcomeUsername" class="text-warning">User</span
+                      >!
+                    </h2>
+                    <p class="fs-5 opacity-90 mb-4">
+                      You are logged in as
+                      <strong id="welcomeRole" class="text-warning">Role</strong
+                      >.
+                    </p>
+                    <p class="fs-5 opacity-90 mb-4">
+                      Manage customers, employees, inventory, sales, and users
+                      with full control.
+                    </p>
+                    <div class="d-flex flex-wrap gap-3">
+                      <button
+                        class="btn btn-light btn-lg rounded-pill px-5 shadow"
+                      >
+                        <i class="bi bi-file-earmark-bar-graph me-2"></i>View
+                        Reports
+                      </button>
+                      <button
+                        class="btn btn-outline-light btn-lg rounded-pill px-5"
+                      >
+                        <i class="bi bi-book me-2"></i>Documentation
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==================== USER MANAGEMENT SECTION ==================== -->
+        <section id="userManagementSection" class="d-none">
+          <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
+            <!-- Header -->
+            <div class="card-header bg-primary text-white py-4">
+              <h2 class="mb-0 d-flex align-items-center gap-3">
+                <i class="bi bi-gear-fill fs-1"></i>
+                User Management
+              </h2>
+              <p class="mb-0 mt-2 opacity-90">
+                Add, edit, or remove system users with role-based access
+              </p>
+            </div>
+
+            <!-- Body -->
+            <div class="card-body p-4">
+              <div class="row g-4">
+                <!-- Form Column -->
+                <div class="col-lg-4">
+                  <div class="bg-light rounded-3 p-4">
+                    <input type="hidden" id="txtUserId" />
+
+                    <div class="mb-3">
+                      <label class="form-label fw-semibold">
+                        <i class="bi bi-person-circle me-2 text-primary"></i
+                        >Username *
+                      </label>
+                      <input
+                        id="txtUsername"
+                        type="text"
+                        class="form-control form-control-lg"
+                        placeholder="Enter username"
+                        required
+                      />
+                    </div>
+
+                    <div class="mb-3">
+                      <label class="form-label fw-semibold">
+                        <i class="bi bi-key-fill me-2 text-warning"></i>Password
+                        *
+                      </label>
+                      <input
+                        id="txtPassword"
+                        type="password"
+                        class="form-control form-control-lg"
+                        placeholder="Enter password"
+                      />
+                      <small class="text-muted"
+                        >Leave blank when updating to keep current
+                        password</small
+                      >
+                    </div>
+
+                    <div class="mb-3">
+                      <label class="form-label fw-semibold">
+                        <i class="bi bi-telephone-fill me-2 text-success"></i
+                        >Phone
+                      </label>
+                      <input
+                        id="txtPhone"
+                        type="text"
+                        class="form-control form-control-lg"
+                        placeholder="+94 XX XXX XXXX"
+                      />
+                    </div>
+
+                    <div class="mb-4">
+                      <label class="form-label fw-semibold">
+                        <i class="bi bi-shield-fill me-2 text-danger"></i>Role *
+                      </label>
+                      <select id="cmbRole" class="form-select form-select-lg">
+                        <option value="Admin">👑 Admin</option>
+                        <option value="Manager">👔 Manager</option>
+                        <option value="Employee">👤 Employee</option>
+                      </select>
+                    </div>
+
+                    <hr class="my-4" />
+
+                    <!-- Action Buttons -->
+                    <div class="d-grid gap-2">
+                      <button id="btnAdd" class="btn btn-success btn-lg">
+                        <i class="bi bi-plus-circle me-2"></i>Add User
+                      </button>
+                      <button id="btnUpdate" class="btn btn-primary btn-lg">
+                        <i class="bi bi-pencil-square me-2"></i>Update User
+                      </button>
+                      <button id="btnDelete" class="btn btn-danger btn-lg">
+                        <i class="bi bi-trash me-2"></i>Delete User
+                      </button>
+                      <button id="btnClear" class="btn btn-secondary btn-lg">
+                        <i class="bi bi-x-circle me-2"></i>Clear Form
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Table Column -->
+                <div class="col-lg-8">
+                  <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                      <thead class="table-primary">
+                        <tr>
+                          <th class="py-3">
+                            <i class="bi bi-hash me-1"></i>User ID
+                          </th>
+                          <th class="py-3">
+                            <i class="bi bi-person me-1"></i>Username
+                          </th>
+                          <th class="py-3">
+                            <i class="bi bi-telephone me-1"></i>Phone
+                          </th>
+                          <th class="py-3">
+                            <i class="bi bi-shield me-1"></i>Role
+                          </th>
+                          <th class="py-3 text-center">
+                            <i class="bi bi-gear me-1"></i>Actions
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody id="tblUsers">
+                        <!-- Skeleton Loader -->
+                        <tr>
+                          <td colspan="5" class="text-center py-5">
+                            <div
+                              class="spinner-border text-primary"
+                              role="status"
+                            >
+                              <span class="visually-hidden">Loading...</span>
+                            </div>
+                            <p class="mt-3 text-muted">Loading users...</p>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+        <!-- ==================== CUSTOMER MANAGEMENT SECTION ==================== -->
+        <section id="customerManagementSection" class="d-none">
+          <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
+            <!-- Header -->
+            <div
+              class="card-header text-white py-4"
+              style="
+                background: linear-gradient(135deg, #0dcaf0 0%, #0aa2c0 100%);
+              "
+            >
+              <h2 class="mb-0 d-flex align-items-center gap-3">
+                <i class="bi bi-people-fill fs-1"></i>
+                Customer Management
+              </h2>
+            </div>
+
+            <div class="card-body p-4">
+              <div class="row g-4">
+                <!-- Left Form -->
+                <div class="col-lg-4">
+                  <div class="bg-light rounded-3 p-4">
+                    <input type="hidden" id="txtCustomerId" />
+
+                    <div class="mb-3">
+                      <label class="form-label fw-semibold">Customer ID</label>
+                      <input
+                        id="txtDisplayCustomerId"
+                        type="text"
+                        class="form-control bg-white"
+                        readonly
+                      />
+                    </div>
+
+                    <div class="mb-3">
+                      <label class="form-label fw-semibold"
+                        >Customer Name *</label
+                      >
+                      <input
+                        id="txtCustomerName"
+                        type="text"
+                        class="form-control"
+                        placeholder="Enter name"
+                      />
+                    </div>
+
+                    <div class="mb-3">
+                      <label class="form-label fw-semibold">Address</label>
+                      <textarea
+                        id="txtCustomerAddress"
+                        class="form-control"
+                        rows="2"
+                        placeholder="Enter address"
+                      ></textarea>
+                    </div>
+
+                    <div class="mb-3">
+                      <label class="form-label fw-semibold">Phone</label>
+                      <input
+                        id="txtCustomerPhone"
+                        type="text"
+                        class="form-control"
+                        placeholder="0771234567"
+                      />
+                    </div>
+
+                    <div class="form-check form-switch mb-4">
+                      <input
+                        class="form-check-input"
+                        type="checkbox"
+                        id="chkTransport"
+                      />
+                      <label class="form-check-label fw-semibold">
+                        Transport Required
+                      </label>
+                    </div>
+
+                    <div class="row g-2">
+                      <div class="col-6 col-lg-3">
+                        <button
+                          id="btnCustomerAdd"
+                          class="btn btn-success w-100"
+                        >
+                          <i class="bi bi-plus-circle"></i> Add
+                        </button>
+                      </div>
+                      <div class="col-6 col-lg-3">
+                        <button
+                          id="btnCustomerUpdate"
+                          class="btn btn-primary w-100"
+                        >
+                          <i class="bi bi-pencil-square"></i> Update
+                        </button>
+                      </div>
+                      <div class="col-6 col-lg-3">
+                        <button
+                          id="btnCustomerDelete"
+                          class="btn btn-danger w-100"
+                        >
+                          <i class="bi bi-trash"></i> Delete
+                        </button>
+                      </div>
+                      <div class="col-6 col-lg-3">
+                        <button
+                          id="btnCustomerClear"
+                          class="btn btn-secondary w-100"
+                        >
+                          <i class="bi bi-x-circle"></i> Clear
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Right Table -->
+                <div class="col-lg-8">
+                  <div class="table-responsive">
+                    <table class="table table-hover">
+                      <thead
+                        style="
+                          background: linear-gradient(
+                            135deg,
+                            #cff4fc 0%,
+                            #e7fafe 100%
+                          );
+                        "
+                      >
+                        <tr>
+                          <th class="fw-bold">Customer ID</th>
+                          <th class="fw-bold">Name</th>
+                          <th class="fw-bold">Address</th>
+                          <th class="fw-bold">Phone</th>
+                          <th class="fw-bold text-center">Transport</th>
+                        </tr>
+                      </thead>
+                      <tbody id="tblCustomers">
+                        <tr>
+                          <td colspan="5" class="text-center py-4 text-muted">
+                            <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+                            No customers found
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==================== EMPLOYEE MANAGEMENT SECTION ==================== -->
+        <section id="employeeManagementSection" class="d-none">
+          <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
+            <div
+              class="card-header text-white py-4"
+              style="
+                background: linear-gradient(135deg, #6f42c1 0%, #5a32a3 100%);
+              "
+            >
+              <h2 class="mb-0 d-flex align-items-center gap-3">
+                <i class="bi bi-people-fill fs-1"></i>
+                Employee Management
+              </h2>
+            </div>
+
+            <div class="card-body p-4">
+              <div class="row g-4">
+                <div class="col-lg-4">
+                  <div class="bg-light rounded-3 p-4">
+                    <input type="hidden" id="txtEmployeeId" />
+
+                    <div class="mb-3">
+                      <label class="form-label fw-semibold">Employee ID</label>
+                      <input
+                        id="txtDisplayEmployeeId"
+                        type="text"
+                        class="form-control bg-white"
+                        readonly
+                      />
+                    </div>
+
+                    <div class="mb-3">
+                      <label class="form-label fw-semibold"
+                        >Employee Name *</label
+                      >
+                      <input
+                        id="txtEmployeeName"
+                        type="text"
+                        class="form-control"
+                        placeholder="Enter name"
+                        autocomplete="off"
+                      />
+                    </div>
+
+                    <div class="mb-3">
+                      <label class="form-label fw-semibold">Phone</label>
+                      <input
+                        id="txtEmployeePhone"
+                        type="text"
+                        class="form-control"
+                        placeholder="0XXXXXXXXX"
+                      />
+                    </div>
+
+                    <div class="mb-3">
+                      <label class="form-label fw-semibold">Position *</label>
+                      <input
+                        id="txtEmployeePosition"
+                        type="text"
+                        class="form-control"
+                        placeholder="e.g., Manager, Worker"
+                      />
+                    </div>
+
+                    <div class="row g-2">
+                      <div class="col-6 col-lg-3">
+                        <button
+                          id="btnAddEmployee"
+                          class="btn btn-success w-100"
+                        >
+                          <i class="bi bi-plus-circle"></i> Add
+                        </button>
+                      </div>
+                      <div class="col-6 col-lg-3">
+                        <button
+                          id="btnUpdateEmployee"
+                          class="btn btn-primary w-100"
+                        >
+                          <i class="bi bi-pencil-square"></i> Update
+                        </button>
+                      </div>
+                      <div class="col-6 col-lg-3">
+                        <button
+                          id="btnDeleteEmployee"
+                          class="btn btn-danger w-100"
+                        >
+                          <i class="bi bi-trash"></i> Delete
+                        </button>
+                      </div>
+                      <div class="col-6 col-lg-3">
+                        <button
+                          id="btnClearEmployee"
+                          class="btn btn-secondary w-100"
+                        >
+                          <i class="bi bi-x-circle"></i> Clear
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-lg-8">
+                  <div class="table-responsive">
+                    <table class="table table-hover">
+                      <thead
+                        style="
+                          background: linear-gradient(
+                            135deg,
+                            #e9d5ff 0%,
+                            #f3e8ff 100%
+                          );
+                        "
+                      >
+                        <tr>
+                          <th class="text-purple fw-bold">Employee ID</th>
+                          <th class="text-purple fw-bold">Name</th>
+                          <th class="text-purple fw-bold">Phone</th>
+                          <th class="text-purple fw-bold">Position</th>
+                        </tr>
+                      </thead>
+                      <tbody id="tblEmployees">
+                        <tr>
+                          <td colspan="4" class="text-center py-4 text-muted">
+                            <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+                            No employees found
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==================== TEA FACTORY MANAGEMENT SECTION ==================== -->
+        <section id="teaFactoryManagementSection" class="d-none">
+          <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
+            <div
+              class="card-header text-white py-4"
+              style="
+                background: linear-gradient(135deg, #198754 0%, #146c43 100%);
+              "
+            >
+              <h2 class="mb-0 d-flex align-items-center gap-3">
+                <i class="bi bi-building fs-1"></i>
+                Tea Factory Management
+              </h2>
+            </div>
+
+            <div class="card-body p-4">
+              <div class="row g-4">
+                <div class="col-lg-4">
+                  <div class="bg-light rounded-3 p-4">
+                    <input type="hidden" id="txtFactoryId" />
+
+                    <div class="mb-3">
+                      <label class="form-label fw-semibold">Factory ID</label>
+                      <input
+                        id="txtDisplayFactoryId"
+                        type="text"
+                        class="form-control bg-white"
+                        readonly
+                      />
+                    </div>
+
+                    <div class="mb-3">
+                      <label class="form-label fw-semibold"
+                        >Factory Name *</label
+                      >
+                      <input
+                        id="txtFactoryName"
+                        type="text"
+                        class="form-control"
+                        placeholder="Enter factory name"
+                        autocomplete="off"
+                      />
+                    </div>
+
+                    <div class="mb-3">
+                      <label class="form-label fw-semibold">Address</label>
+                      <input
+                        id="txtFactoryAddress"
+                        type="text"
+                        class="form-control"
+                        placeholder="Enter address"
+                      />
+                    </div>
+
+                    <div class="mb-3">
+                      <label class="form-label fw-semibold">Phone</label>
+                      <input
+                        id="txtFactoryPhone"
+                        type="text"
+                        class="form-control"
+                        placeholder="0XXXXXXXXX"
+                      />
+                    </div>
+
+                    <div class="row g-2">
+                      <div class="col-6 col-lg-3">
+                        <button
+                          id="btnAddFactory"
+                          class="btn btn-success w-100"
+                        >
+                          <i class="bi bi-plus-circle"></i> Add
+                        </button>
+                      </div>
+                      <div class="col-6 col-lg-3">
+                        <button
+                          id="btnUpdateFactory"
+                          class="btn btn-primary w-100"
+                        >
+                          <i class="bi bi-pencil-square"></i> Update
+                        </button>
+                      </div>
+                      <div class="col-6 col-lg-3">
+                        <button
+                          id="btnDeleteFactory"
+                          class="btn btn-danger w-100"
+                        >
+                          <i class="bi bi-trash"></i> Delete
+                        </button>
+                      </div>
+                      <div class="col-6 col-lg-3">
+                        <button
+                          id="btnClearFactory"
+                          class="btn btn-secondary w-100"
+                        >
+                          <i class="bi bi-x-circle"></i> Clear
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-lg-8">
+                  <div class="table-responsive">
+                    <table class="table table-hover">
+                      <thead
+                        style="
+                          background: linear-gradient(
+                            135deg,
+                            #d1f4e0 0%,
+                            #e8f8f0 100%
+                          );
+                        "
+                      >
+                        <tr>
+                          <th class="text-success fw-bold">Factory ID</th>
+                          <th class="text-success fw-bold">Name</th>
+                          <th class="text-success fw-bold">Address</th>
+                          <th class="text-success fw-bold">Phone</th>
+                        </tr>
+                      </thead>
+                      <tbody id="tblTeaFactories">
+                        <tr>
+                          <td colspan="4" class="text-center py-4 text-muted">
+                            <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+                            No factories found
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+        <!-- ==================== RAW TEA INVENTORY SECTION ==================== -->
+        <section id="rawTeaInventorySection" class="d-none">
+          <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
+            <!-- Header -->
+            <div
+              class="card-header text-white py-4"
+              style="
+                background: linear-gradient(135deg, #198754 0%, #157347 100%);
+              "
+            >
+              <h2 class="mb-0 d-flex align-items-center gap-3">
+                <i class="bi bi-box-seam fs-1"></i>
+                Raw Tea Inventory
+              </h2>
+            </div>
+
+            <!-- Body -->
+            <div class="card-body p-4">
+              <div class="row g-4">
+                <!-- Left Form -->
+                <div class="col-lg-4">
+                  <div class="bg-light rounded-3 p-4">
+                    <!-- Search -->
+                    <div class="mb-3">
+                      <label class="form-label fw-semibold"
+                        >Search Customer</label
+                      >
+                      <div class="input-group">
+                        <input
+                          id="txtSearchCustomer"
+                          type="text"
+                          class="form-control"
+                          placeholder="Customer name"
+                        />
+                        <button id="btnSearchCustomer" class="btn btn-success">
+                          <i class="bi bi-search"></i>
+                        </button>
+                      </div>
+                    </div>
+
+                    <input type="hidden" id="txtInventoryId" />
+
+                    <!-- Inventory ID -->
+                    <div class="mb-3">
+                      <label class="form-label fw-semibold">Inventory ID</label>
+                      <input
+                        id="txtDisplayInventoryId"
+                        type="text"
+                        class="form-control bg-white"
+                        readonly
+                      />
+                    </div>
+
+                    <!-- Customer -->
+                    <div class="mb-3">
+                      <label class="form-label fw-semibold">Customer *</label>
+                      <select id="cmbCustomer" class="form-select">
+                        <option value="">Select Customer</option>
+                      </select>
+                    </div>
+
+                    <!-- Transporter -->
+                    <div class="col-md-6 mb-3" id="transporterWrapper">
+                      <label>Transporter</label>
+                      <select id="cmbTransporter" class="form-control"></select>
+                    </div>
+
+                    <!-- Quantity -->
+                    <div class="mb-3">
+                      <label class="form-label fw-semibold"
+                        >Quantity (kg) *</label
+                      >
+                      <input
+                        id="txtQuantity"
+                        type="number"
+                        class="form-control"
+                        placeholder="0.00"
+                        step="0.01"
+                      />
+                    </div>
+
+                    <!-- Tea Type -->
+                    <div class="mb-3">
+                      <label class="form-label fw-semibold d-block"
+                        >Tea Type *</label
+                      >
+                      <div class="form-check">
+                        <input
+                          class="form-check-input"
+                          type="radio"
+                          name="teaType"
+                          id="rbBestTea"
+                          value="Best Tea"
+                        />
+                        <label class="form-check-label" for="rbBestTea">
+                          Best Tea
+                        </label>
+                      </div>
+                      <div class="form-check">
+                        <input
+                          class="form-check-input"
+                          type="radio"
+                          name="teaType"
+                          id="rbNormalTea"
+                          value="Normal Tea"
+                          checked
+                        />
+                        <label class="form-check-label" for="rbNormalTea">
+                          Normal Tea
+                        </label>
+                      </div>
+                    </div>
+
+                    <!-- Date -->
+                    <div class="mb-3">
+                      <label class="form-label fw-semibold">Date *</label>
+                      <input id="txtDate" type="date" class="form-control" />
+                    </div>
+
+                    <!-- Phone + SMS -->
+                    <div class="mb-4 p-3 bg-white rounded-3 border">
+                      <small class="text-muted">Phone Number</small>
+                      <div
+                        class="d-flex justify-content-between align-items-center"
+                      >
+                        <span id="lblPhoneNumber" class="fw-bold">---</span>
+                        <button
+                          id="btnSendSMS"
+                          class="btn btn-success btn-sm"
+                          disabled
+                        >
+                          <i class="bi bi-chat-dots"></i> SMS
+                        </button>
+                      </div>
+                    </div>
+
+                    <!-- Buttons -->
+                    <!-- Raw Tea Inventory Section වල buttons -->
+                    <div class="row g-2">
+                      <div class="col-6 col-lg-3">
+                        <button id="btnSave" class="btn btn-success w-100">
+                          <i class="bi bi-plus-circle"></i> Save
+                        </button>
+                      </div>
+                      <div class="col-6 col-lg-3">
+                        <button id="btnUpdate" class="btn btn-primary w-100">
+                          <i class="bi bi-pencil-square"></i> Update
+                        </button>
+                      </div>
+                      <div class="col-6 col-lg-3">
+                        <button id="btnDelete" class="btn btn-danger w-100">
+                          <i class="bi bi-trash"></i> Delete
+                        </button>
+                      </div>
+                      <div class="col-6 col-lg-3">
+                        <button id="btnClear" class="btn btn-secondary w-100">
+                          <i class="bi bi-x-circle"></i> Clear
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Right Table -->
+                <div class="col-lg-8">
+                  <div class="table-responsive">
+                    <table class="table table-hover">
+                      <thead
+                        style="
+                          background: linear-gradient(
+                            135deg,
+                            #d1e7dd 0%,
+                            #e9f7ef 100%
+                          );
+                        "
+                      >
+                        <tr>
+                          <th class="fw-bold">Inventory ID</th>
+                          <th class="fw-bold">Customer</th>
+                          <th class="fw-bold">Transporter</th>
+                          <th class="fw-bold text-center">Net Weight (kg)</th>
+                          <th class="fw-bold">Date</th>
+                          <th class="fw-bold">Tea Type</th>
+                        </tr>
+                      </thead>
+                      <tbody id="tblRawTeaInventory">
+                        <tr>
+                          <td colspan="7" class="text-center py-4 text-muted">
+                            <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+                            No inventory records found
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- monthly rate section -->
+        <section
+          id="Monthlyratesection"
+          class="container-fluid p-4"
+          style="background: linear-gradient(to bottom, #e9f5ee, #f8fafc)"
+        >
+          <div class="card shadow-lg rounded-4">
+            <!-- Header -->
+            <div
+              class="card-header text-white d-flex align-items-center"
+              style="background: linear-gradient(to right, #166534, #22c55e)"
+            >
+              <span class="fs-3 me-2">💰</span>
+              <h4 class="mb-0 fw-bold">Customer Raw Tea Payment</h4>
+              <span id="lblPaymentId" class="ms-4 fw-bold text-light"></span>
+            </div>
+
+            <!-- Body -->
+            <div class="card-body">
+              <div class="row g-4">
+                <!-- Left Form -->
+                <div class="col-lg-4">
+                  <div class="p-4 rounded-4 shadow-sm bg-light">
+                    <input type="hidden" id="txtmonthlytearateID" />
+
+                    <input type="hidden" id="txtSelectedIndex" value="" />
+
+                    <!-- Inventory ID -->
+                    <div class="mb-3">
+                      <label class="form-label fw-semibold"
+                        >Monthly Tea Rate ID</label
+                      >
+                      <input
+                        id="txtDisplaytxtmonthlytearateID"
+                        type="text"
+                        class="form-control bg-white"
+                        readonly
+                      />
+                    </div>
+
+                    <!-- Year -->
+                    <div class="mb-3">
+                      <label class="form-label fw-semibold">Year</label>
+                      <select id="cmbYear" class="form-select"></select>
+                    </div>
+
+                    <!-- Month -->
+                    <div class="mb-3">
+                      <label class="form-label fw-semibold">Month</label>
+                      <select id="cmbMonth" class="form-select"></select>
+                    </div>
+
+                    <!-- Load -->
+                    <div class="mb-3 text-end">
+                      <button id="btnLoad" class="btn btn-primary px-4">
+                        Load Data
+                      </button>
+                    </div>
+
+                    <!-- Rates -->
+                    <div class="mb-3">
+                      <label class="form-label fw-semibold"
+                        >Best Tea Rate (Rs/kg)</label
+                      >
+                      <input
+                        type="number"
+                        id="txtBestTeaRate"
+                        class="form-control"
+                      />
+                    </div>
+
+                    <div class="mb-3">
+                      <label class="form-label fw-semibold"
+                        >Normal Tea Rate (Rs/kg)</label
+                      >
+                      <input
+                        type="number"
+                        id="txtNormalTeaRate"
+                        class="form-control"
+                      />
+                    </div>
+
+                    <!-- Date -->
+                    <div class="mb-3">
+                      <label class="form-label fw-semibold">Date</label>
+                      <input type="date" id="txtDate" class="form-control" />
+                    </div>
+
+                    <!-- Buttons -->
+                    <div class="d-flex justify-content-center gap-3 mt-3">
+                      <button id="btnCalculate" class="btn btn-success px-4">
+                        Calculate
+                      </button>
+                      <button id="btnUpdate" class="btn btn-warning px-4">
+                        Update
+                      </button>
+                      <button id="btnClear" class="btn btn-secondary px-4">
+                        Clear
+                      </button>
+                    </div>
+
+                    <!-- Summary -->
+                    <div class="mt-4 p-3 rounded-3 bg-white shadow-sm">
+                      <p id="lblTotalBest" class="fw-bold text-success mb-1">
+                        Total Best: 0 kg
+                      </p>
+                      <p id="lblTotalNormal" class="fw-bold text-success mb-1">
+                        Total Normal: 0 kg
+                      </p>
+                      <p id="lblTotalAmount" class="fw-bold text-dark mb-0">
+                        Total Amount: Rs 0.00
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Right Table -->
+                <div class="col-lg-8">
+                  <div class="p-3 rounded-4 shadow-sm bg-white">
+                    <h5 class="fw-bold text-success mb-3">Payment Summary</h5>
+
+                    <table
+                      class="table table-bordered table-hover text-center align-middle"
+                    >
+                      <thead class="table-success">
+                        <tr>
+                          <th>Customer ID</th>
+                          <th>Best Kg</th>
+                          <th>Normal Kg</th>
+                          <th>Best Price</th>
+                          <th>Normal Price</th>
+                          <th>Full Total</th>
+                        </tr>
+                      </thead>
+                      <tbody id="tblPayments">
+                        <!-- rows load here -->
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==================== FERTILIZER MAIN SECTION ==================== -->
+        <section id="fertilizerSection" class="d-none">
+          <div class="container-fluid py-5">
+            <div class="text-center mb-5">
+              <h1 class="display-5 fw-bold text-success mb-3">
+                <i class="bi bi-tree-fill me-3"></i>Fertilizer Management
+              </h1>
+              <p class="lead text-muted">
+                Choose between Inventory or Order management
+              </p>
+            </div>
+
+            <div class="row g-5 justify-content-center">
+              <div class="col-lg-5">
+                <div
+                  class="card border-0 shadow-lg h-100"
+                  style="cursor: pointer; transition: all 0.3s"
+                  onmouseover="this.style.transform='translateY(-10px)'"
+                  onmouseout="this.style.transform='translateY(0)'"
+                  onclick="showSection('fertilizerInventorySection')"
+                >
+                  <div class="card-body text-center p-5">
+                    <div
+                      class="bg-success bg-opacity-10 text-success rounded-circle mx-auto mb-4"
+                      style="
+                        width: 100px;
+                        height: 100px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                      "
+                    >
+                      <i class="bi bi-box-seam fs-1"></i>
+                    </div>
+                    <h3 class="h2 fw-bold text-success">
+                      Fertilizer Inventory
+                    </h3>
+                    <p class="fs-5 text-muted mt-3">
+                      Manage fertilizer stock, add new inventory, update
+                      quantities, and track available products
+                    </p>
+                    <div class="mt-4">
+                      <span class="text-success fw-bold fs-4"
+                        >Manage Inventory →</span
+                      >
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-lg-5">
+                <div
+                  class="card border-0 shadow-lg h-100"
+                  style="cursor: pointer; transition: all 0.3s"
+                  onmouseover="this.style.transform='translateY(-10px)'"
+                  onmouseout="this.style.transform='translateY(0)'"
+                  onclick="showSection('fertilizerOrderSection')"
+                >
+                  <div class="card-body text-center p-5">
+                    <div
+                      class="bg-primary bg-opacity-10 text-primary rounded-circle mx-auto mb-4"
+                      style="
+                        width: 100px;
+                        height: 100px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                      "
+                    >
+                      <i class="bi bi-cart4 fs-1"></i>
+                    </div>
+                    <h3 class="h2 fw-bold text-primary">Fertilizer Orders</h3>
+                    <p class="fs-5 text-muted mt-3">
+                      Process customer orders, manage deliveries, track
+                      payments, and handle transport arrangements
+                    </p>
+                    <div class="mt-4">
+                      <span class="text-primary fw-bold fs-4"
+                        >Manage Orders →</span
+                      >
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==================== FERTILIZER INVENTORY SECTION ==================== -->
+        <section id="fertilizerInventorySection" class="container-fluid p-4">
+          <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
+            <!-- Header -->
+            <div
+              class="card-header text-white py-4"
+              style="
+                background: linear-gradient(135deg, #198754 0%, #157347 100%);
+              "
+            >
+              <div class="d-flex justify-content-between align-items-center">
+                <h2 class="mb-0 d-flex align-items-center gap-3">
+                  <i class="bi bi-box-seam fs-1"></i>
+                  Fertilizer Inventory
+                </h2>
+                <button
+                  class="btn btn-light"
+                  onclick="showSection('fertilizerSection')"
+                >
+                  <i class="bi bi-arrow-left"></i> Back
+                </button>
+              </div>
+            </div>
+
+            <!-- Body -->
+            <div class="card-body p-4">
+              <div class="row g-4">
+                <!-- Left Form -->
+                <div class="col-lg-4">
+                  <div class="bg-light rounded-3 p-4">
+                    <input type="hidden" id="txtInventoryId" />
+
+                    <!-- Inventory ID -->
+                    <div class="mb-3">
+                      <label class="form-label fw-semibold">Inventory ID</label>
+                      <input
+                        id="txtDisplayInventoryId"
+                        type="text"
+                        class="form-control bg-white"
+                        readonly
+                      />
+                    </div>
+
+                    <!-- Fertilizer Type -->
+                    <div class="mb-3">
+                      <label class="form-label fw-semibold"
+                        >Fertilizer Type *</label
+                      >
+                      <div class="d-flex flex-column gap-2">
+                        <div class="form-check">
+                          <input
+                            class="form-check-input"
+                            type="radio"
+                            name="fertilizerType"
+                            id="rdoT200"
+                            value="T200"
+                          />
+                          <label class="form-check-label" for="rdoT200"
+                            >T200</label
+                          >
+                        </div>
+                        <div class="form-check">
+                          <input
+                            class="form-check-input"
+                            type="radio"
+                            name="fertilizerType"
+                            id="rdoT750"
+                            value="T750"
+                          />
+                          <label class="form-check-label" for="rdoT750"
+                            >T750</label
+                          >
+                        </div>
+                        <div class="form-check">
+                          <input
+                            class="form-check-input"
+                            type="radio"
+                            name="fertilizerType"
+                            id="rdoU709"
+                            value="U709"
+                          />
+                          <label class="form-check-label" for="rdoU709"
+                            >U709</label
+                          >
+                        </div>
+                        <div class="form-check">
+                          <input
+                            class="form-check-input"
+                            type="radio"
+                            name="fertilizerType"
+                            id="rdo1625"
+                            value="1625"
+                          />
+                          <label class="form-check-label" for="rdo1625"
+                            >1625</label
+                          >
+                        </div>
+                        <div class="form-check">
+                          <input
+                            class="form-check-input"
+                            type="radio"
+                            name="fertilizerType"
+                            id="rdoT65"
+                            value="T65"
+                          />
+                          <label class="form-check-label" for="rdoT65"
+                            >T65</label
+                          >
+                        </div>
+                        <div class="form-check">
+                          <input
+                            class="form-check-input"
+                            type="radio"
+                            name="fertilizerType"
+                            id="rdoDolamite"
+                            value="Dolamite"
+                          />
+                          <label class="form-check-label" for="rdoDolamite"
+                            >Dolamite</label
+                          >
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Quantity -->
+                    <div class="mb-3">
+                      <label class="form-label fw-semibold"
+                        >Quantity (kg) *</label
+                      >
+                      <input
+                        id="txtInvQuantity"
+                        type="number"
+                        class="form-control"
+                        placeholder="0.00"
+                        step="0.01"
+                      />
+                    </div>
+
+                    <!-- Buy Price -->
+                    <div class="mb-3">
+                      <label class="form-label fw-semibold"
+                        >Buy Price (Rs) *</label
+                      >
+                      <input
+                        id="txtBuyPrice"
+                        type="number"
+                        class="form-control"
+                        placeholder="0.00"
+                        step="0.01"
+                      />
+                    </div>
+
+                    <!-- Selling Price -->
+                    <div class="mb-3">
+                      <label class="form-label fw-semibold"
+                        >Selling Price (Rs) *</label
+                      >
+                      <input
+                        id="txtSellingPrice"
+                        type="number"
+                        class="form-control"
+                        placeholder="0.00"
+                        step="0.01"
+                      />
+                    </div>
+
+                    <!-- Date -->
+                    <div class="mb-3">
+                      <label class="form-label fw-semibold">Date *</label>
+                      <input id="txtInvDate" type="date" class="form-control" />
+                    </div>
+
+                    <!-- Buttons -->
+                    <div class="row g-2">
+                      <div class="col-6 col-lg-3">
+                        <button id="btnInvAdd" class="btn btn-success w-100">
+                          <i class="bi bi-plus-circle"></i> Add
+                        </button>
+                      </div>
+                      <div class="col-6 col-lg-3">
+                        <button id="btnInvUpdate" class="btn btn-primary w-100">
+                          <i class="bi bi-pencil-square"></i> Update
+                        </button>
+                      </div>
+                      <div class="col-6 col-lg-3">
+                        <button id="btnInvDelete" class="btn btn-danger w-100">
+                          <i class="bi bi-trash"></i> Delete
+                        </button>
+                      </div>
+                      <div class="col-6 col-lg-3">
+                        <button
+                          id="btnInvClear"
+                          class="btn btn-secondary w-100"
+                        >
+                          <i class="bi bi-x-circle"></i> Clear
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Right Table -->
+                <div class="col-lg-8">
+                  <div class="table-responsive">
+                    <table class="table table-hover">
+                      <thead
+                        style="
+                          background: linear-gradient(
+                            135deg,
+                            #d1e7dd 0%,
+                            #e9f7ef 100%
+                          );
+                        "
+                      >
+                        <tr>
+                          <th class="fw-bold">Inventory ID</th>
+                          <th class="fw-bold">Fertilizer</th>
+                          <th class="fw-bold">Quantity (kg)</th>
+                          <th class="fw-bold">Buy Price</th>
+                          <th class="fw-bold">Selling Price</th>
+                          <th class="fw-bold">Date</th>
+                        </tr>
+                      </thead>
+                      <tbody id="tblFertilizerInventory">
+                        <tr>
+                          <td colspan="6" class="text-center py-4 text-muted">
+                            <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+                            No inventory records found
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==================== FERTILIZER ORDER SECTION ==================== -->
+        <section id="fertilizerOrderSection" class="container-fluid p-4 d-none">
+          <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
+            <!-- Header -->
+            <div
+              class="card-header text-white py-4"
+              style="
+                background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
+              "
+            >
+              <div class="d-flex justify-content-between align-items-center">
+                <h2 class="mb-0 d-flex align-items-center gap-3">
+                  <i class="bi bi-cart4 fs-1"></i> Fertilizer Orders
+                </h2>
+                <button
+                  class="btn btn-light"
+                  onclick="showSection('fertilizerSection')"
+                >
+                  <i class="bi bi-arrow-left"></i> Back
+                </button>
+              </div>
+            </div>
+
+            <!-- Body -->
+            <div class="card-body p-4">
+              <div class="row g-4">
+                <!-- ================= LEFT FORM ================= -->
+                <div class="col-lg-4">
+                  <div class="bg-light rounded-3 p-4">
+                     <!-- Search -->
+                    <div class="mb-3">
+                      <label class="form-label fw-semibold"
+                        >Search Customer</label
+                      >
+                      <div class="input-group">
+                        <input
+                          id="txtSearchCustomer"
+                          type="text"
+                          class="form-control"
+                          placeholder="Customer name"
+                        />
+                        <button id="btnSearchCustomer" type="button" class="btn btn-success">
+                          <i class="bi bi-search"></i>
+                        </button>
+                      </div>
+                    </div>
+                    <!-- Hidden Fields -->
+                    <input type="hidden" id="txtOrderId" />
+                    <input type="hidden" id="txtSelectedOrderIndex" />
+
+                    <!-- Order ID -->
+                    <div class="mb-3">
+                      <label class="form-label fw-semibold">Order ID</label>
+                      <input
+                        id="txtDisplayOrderId"
+                        class="form-control bg-white"
+                        readonly
+                      />
+                    </div>
+
+                    <!-- Fertilizer Type -->
+                    <div class="mb-3">
+                      <label class="form-label fw-semibold"
+                        >Select Fertilizer *</label
+                      >
+                      <div class="d-flex flex-column gap-1">
+                        <div class="form-check">
+                          <input
+                            class="form-check-input"
+                            type="radio"
+                            name="orderFertilizerType"
+                            value="T200"
+                          />
+                          T200
+                        </div>
+                        <div class="form-check">
+                          <input
+                            class="form-check-input"
+                            type="radio"
+                            name="orderFertilizerType"
+                            value="T750"
+                          />
+                          T750
+                        </div>
+                        <div class="form-check">
+                          <input
+                            class="form-check-input"
+                            type="radio"
+                            name="orderFertilizerType"
+                            value="U709"
+                          />
+                          U709
+                        </div>
+                        <div class="form-check">
+                          <input
+                            class="form-check-input"
+                            type="radio"
+                            name="orderFertilizerType"
+                            value="1625"
+                          />
+                          1625
+                        </div>
+                        <div class="form-check">
+                          <input
+                            class="form-check-input"
+                            type="radio"
+                            name="orderFertilizerType"
+                            value="T65"
+                          />
+                          T65
+                        </div>
+                        <div class="form-check">
+                          <input
+                            class="form-check-input"
+                            type="radio"
+                            name="orderFertilizerType"
+                            value="Dolamite"
+                          />
+                          Dolamite
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Inventory -->
+                    <div class="mb-3">
+                      <label class="form-label fw-semibold"
+                        >Inventory ID *</label
+                      >
+                      <select id="cmbFertilizerInventoryId" class="form-select">
+                        <option value="">Select Inventory</option>
+                      </select>
+                    </div>
+
+                    <!-- Available Qty -->
+                    <div class="mb-3">
+                      <label class="form-label fw-semibold"
+                        >Available Quantity</label
+                      >
+                      <input
+                        id="lblAvailableQty"
+                        class="form-control bg-white"
+                        value="0 kg"
+                        readonly
+                      />
+                    </div>
+
+                    <!-- Customer -->
+                    <div class="mb-3">
+                      <label class="form-label fw-semibold">Customer *</label>
+                      <select id="cmbOrderCustomerId" class="form-select">
+                        <option value="">Select Customer</option>
+                      </select>
+                    </div>
+
+                  
+      
+
+                        <!-- Transporters -->
+                    <div class="mb-3">
+                      <label class="form-label fw-semibold">Transporters *</label>
+                      <select id="cmbOrderTransporterId" class="form-select">
+                        <option value="">Select Transporter</option>
+                      </select>
+                    </div>
+
+
+                    <!-- Quantity -->
+                    <div class="mb-3">
+                      <label class="form-label fw-semibold"
+                        >Quantity (kg) *</label
+                      >
+                      <input
+                        id="txtOrderQuantity"
+                        type="number"
+                        class="form-control"
+                        step="0.01"
+                      />
+                    </div>
+
+                    <!-- Price -->
+                    <div class="mb-3">
+                      <label class="form-label fw-semibold"
+                        >Price per Kg (Rs) *</label
+                      >
+                      <input
+                        id="txtPricePerKg"
+                        type="number"
+                        class="form-control"
+                        step="0.01"
+                      />
+                    </div>
+
+                    <!-- Date -->
+                    <div class="mb-3">
+                      <label class="form-label fw-semibold">Date *</label>
+                      <input
+                        id="txtOrderDate"
+                        type="date"
+                        class="form-control"
+                        value=""
+                      />
+                    </div>
+
+                    <!-- Transport Fee -->
+                    <div class="alert alert-info">
+                      <strong id="lblTransportFee"
+                        >Transport Fee: Rs 0.00</strong
+                      >
+                    </div>
+
+                    <!-- Buttons -->
+                    <div class="row g-2">
+                      <div class="col-4">
+                        <button id="btnOrderAdd" class="btn btn-success w-100">
+                          Add
+                        </button>
+                      </div>
+                      <div class="col-4">
+                        <button
+                          id="btnOrderUpdate"
+                          class="btn btn-primary w-100"
+                          disabled
+                        >
+                          Update
+                        </button>
+                      </div>
+                      <div class="col-4">
+                        <button
+                          id="btnOrderDelete"
+                          class="btn btn-danger w-100"
+                        >
+                          Delete
+                        </button>
+                      </div>
+                      <div class="col-6">
+                        <button
+                          id="btnOrderClear"
+                          class="btn btn-secondary w-100"
+                        >
+                          Clear
+                        </button>
+                      </div>
+                      <div class="col-6">
+                        <button
+                          id="btnOrderReport"
+                          class="btn btn-warning w-100"
+                        >
+                          Report
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- ================= TABLE ================= -->
+                <div class="col-lg-8">
+                  <div class="table-responsive">
+                    <table class="table table-hover table-sm">
+                      <thead class="table-light">
+                        <tr>
+                          <th>Order ID</th>
+                          <th>Customer</th>
+                          <th>Fertilizer</th>
+                          <th>Inv ID</th>
+                          <th>Qty</th>
+                          <th>Price</th>
+                          <th>Date</th>
+                          <th>Half 1</th>
+                          <th>Half 2</th>
+                          <th>Transport</th>
+                        </tr>
+                      </thead>
+                      <tbody id="tblFertilizerOrders">
+                        <tr>
+                          <td colspan="10" class="text-center text-muted">
+                            No orders found
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==================== TEA PRODUCT MAIN SECTION ==================== -->
+        <section id="teaProductMainSection" class="d-none">
+          <div class="container-fluid py-5">
+            <div class="text-center mb-5">
+              <h1 class="display-5 fw-bold text-success mb-3">
+                <i class="bi bi-cup-hot-fill me-3"></i>Tea Product Management
+              </h1>
+              <p class="lead text-muted">
+                Choose between Inventory or Order management
+              </p>
+            </div>
+
+            <div class="row g-5 justify-content-center">
+              <div class="col-lg-5">
+                <div
+                  class="card border-0 shadow-lg h-100"
+                  style="cursor: pointer; transition: all 0.3s"
+                  onmouseover="this.style.transform='translateY(-10px)'"
+                  onmouseout="this.style.transform='translateY(0)'"
+                  onclick="showSection('teaPacketInventorySection')"
+                >
+                  <div class="card-body text-center p-5">
+                    <div
+                      class="bg-success bg-opacity-10 text-success rounded-circle mx-auto mb-4"
+                      style="
+                        width: 100px;
+                        height: 100px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                      "
+                    >
+                      <i class="bi bi-box2-fill fs-1"></i>
+                    </div>
+                    <h3 class="h2 fw-bold text-success">
+                      Tea Packet Inventory
+                    </h3>
+                    <p class="fs-5 text-muted mt-3">
+                      Manage tea packet stock, add new inventory, update
+                      quantities, and track available products
+                    </p>
+                    <div class="mt-4">
+                      <span class="text-success fw-bold fs-4"
+                        >Manage Inventory →</span
+                      >
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-lg-5">
+                <div
+                  class="card border-0 shadow-lg h-100"
+                  style="cursor: pointer; transition: all 0.3s"
+                  onmouseover="this.style.transform='translateY(-10px)'"
+                  onmouseout="this.style.transform='translateY(0)'"
+                  onclick="showSection('teaPacketOrderSection')"
+                >
+                  <div class="card-body text-center p-5">
+                    <div
+                      class="bg-primary bg-opacity-10 text-primary rounded-circle mx-auto mb-4"
+                      style="
+                        width: 100px;
+                        height: 100px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                      "
+                    >
+                      <i class="bi bi-cart-check-fill fs-1"></i>
+                    </div>
+                    <h3 class="h2 fw-bold text-primary">Tea Packet Orders</h3>
+                    <p class="fs-5 text-muted mt-3">
+                      Process customer orders, manage deliveries, track
+                      payments, and handle tea packet sales
+                    </p>
+                    <div class="mt-4">
+                      <span class="text-primary fw-bold fs-4"
+                        >Manage Orders →</span
+                      >
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==================== TEA PACKET INVENTORY SECTION ==================== -->
+        <section
+          id="teaPacketInventorySection"
+          class="container-fluid p-4 d-none"
+        >
+          <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
+            <!-- Header -->
+            <div
+              class="card-header text-white py-4"
+              style="
+                background: linear-gradient(135deg, #198754 0%, #157347 100%);
+              "
+            >
+              <div class="d-flex justify-content-between align-items-center">
+                <h2 class="mb-0 d-flex align-items-center gap-3">
+                  <i class="bi bi-box2-fill fs-1"></i>
+                  Tea Packet Inventory
+                </h2>
+                <button
+                  class="btn btn-light"
+                  onclick="showSection('teaProductMainSection')"
+                >
+                  <i class="bi bi-arrow-left"></i> Back
+                </button>
+              </div>
+            </div>
+
+            <!-- Body -->
+            <div class="card-body p-4">
+              <div class="row g-4">
+                <!-- Left Form -->
+                <div class="col-lg-4">
+                  <div class="bg-light rounded-3 p-4">
+                    <input type="hidden" id="txtTeaInventoryId" />
+
+                    <!-- Inventory ID -->
+                    <div class="mb-3">
+                      <label class="form-label fw-semibold">Inventory ID</label>
+                      <input
+                        id="txtDisplayTeaInventoryId"
+                        type="text"
+                        class="form-control bg-white"
+                        readonly
+                      />
+                    </div>
+
+                    <!-- Tea Type -->
+                    <div class="mb-3">
+                      <label class="form-label fw-semibold">Tea Type *</label>
+                      <input
+                        id="txtTeaType"
+                        type="text"
+                        class="form-control"
+                        placeholder="e.g., Ceylon Black Tea, Green Tea"
+                      />
+                    </div>
+
+                    <!-- Packet Size -->
+                    <div class="mb-3">
+                      <label class="form-label fw-semibold"
+                        >Packet Size *</label
+                      >
+                      <select id="cmbTeaPacketSize" class="form-select">
+                        <option value="">Select Size</option>
+                        <option value="0.25">250g (0.25 kg)</option>
+                        <option value="0.5">500g (0.5 kg)</option>
+                        <option value="1">1 kg</option>
+                        <option value="2">2 kg</option>
+                      </select>
+                    </div>
+
+                    <!-- Quantity (Packets) -->
+                    <div class="mb-3">
+                      <label class="form-label fw-semibold"
+                        >Quantity (Packets) *</label
+                      >
+                      <input
+                        id="txtTeaPacketQty"
+                        type="number"
+                        class="form-control"
+                        placeholder="0"
+                        step="1"
+                      />
+                    </div>
+
+                    <!-- Buy Price -->
+                    <div class="mb-3">
+                      <label class="form-label fw-semibold"
+                        >Buy Price (Rs/packet) *</label
+                      >
+                      <input
+                        id="txtTeaBuyPrice"
+                        type="number"
+                        class="form-control"
+                        placeholder="0.00"
+                        step="0.01"
+                      />
+                    </div>
+
+                    <!-- Selling Price -->
+                    <div class="mb-3">
+                      <label class="form-label fw-semibold"
+                        >Selling Price (Rs/packet) *</label
+                      >
+                      <input
+                        id="txtTeaSellPrice"
+                        type="number"
+                        class="form-control"
+                        placeholder="0.00"
+                        step="0.01"
+                      />
+                    </div>
+
+                    <!-- Date -->
+                    <div class="mb-3">
+                      <label class="form-label fw-semibold">Date *</label>
+                      <input id="txtTeaDate" type="date" class="form-control" />
+                    </div>
+
+                    <!-- Buttons -->
+                    <div class="row g-2">
+                      <div class="col-6 col-lg-3">
+                        <button
+                          id="btnAddTeaInventory"
+                          class="btn btn-success w-100"
+                        >
+                          <i class="bi bi-plus-circle"></i> Add
+                        </button>
+                      </div>
+                      <div class="col-6 col-lg-3">
+                        <button
+                          id="btnUpdateTeaInventory"
+                          class="btn btn-primary w-100"
+                        >
+                          <i class="bi bi-pencil-square"></i> Update
+                        </button>
+                      </div>
+                      <div class="col-6 col-lg-3">
+                        <button
+                          id="btnDeleteTeaInventory"
+                          class="btn btn-danger w-100"
+                        >
+                          <i class="bi bi-trash"></i> Delete
+                        </button>
+                      </div>
+                      <div class="col-6 col-lg-3">
+                        <button
+                          id="btnClearTeaInventory"
+                          class="btn btn-secondary w-100"
+                        >
+                          <i class="bi bi-x-circle"></i> Clear
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Right Table -->
+                <div class="col-lg-8">
+                  <div class="table-responsive">
+                    <table class="table table-hover">
+                      <thead
+                        style="
+                          background: linear-gradient(
+                            135deg,
+                            #d1e7dd 0%,
+                            #e9f7ef 100%
+                          );
+                        "
+                      >
+                        <tr>
+                          <th class="fw-bold">Inventory ID</th>
+                          <th class="fw-bold">Tea Type</th>
+                          <th class="fw-bold">Packet Size</th>
+                          <th class="fw-bold">Quantity</th>
+                          <th class="fw-bold">Buy Price</th>
+                          <th class="fw-bold">Selling Price</th>
+                          <th class="fw-bold">Date</th>
+                        </tr>
+                      </thead>
+                      <tbody id="tblTeaInventory">
+                        <tr>
+                          <td colspan="7" class="text-center py-4 text-muted">
+                            <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+                            No inventory records found
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==================== TEA PACKET ORDER SECTION ==================== -->
+        <section id="teaPacketOrderSection" class="container-fluid p-4 d-none">
+          <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
+            <!-- Header -->
+            <div
+              class="card-header text-white py-4"
+              style="
+                background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
+              "
+            >
+              <div class="d-flex justify-content-between align-items-center">
+                <h2 class="mb-0 d-flex align-items-center gap-3">
+                  <i class="bi bi-cart-check-fill fs-1"></i> Tea Packet Orders
+                </h2>
+                <button
+                  class="btn btn-light"
+                  onclick="showSection('teaProductMainSection')"
+                >
+                  <i class="bi bi-arrow-left"></i> Back
+                </button>
+              </div>
+            </div>
+
+            <!-- Body -->
+            <div class="card-body p-4">
+              <div class="row g-4">
+                <!-- Left Form -->
+                <div class="col-lg-4">
+                  <div class="bg-light rounded-3 p-4">
+                    <!-- Hidden Fields -->
+                    <input type="hidden" id="txtTeaOrderId" />
+
+                    <!-- Order ID -->
+                    <div class="mb-3">
+                      <label class="form-label fw-semibold">Order ID</label>
+                      <input
+                        id="txtDisplayTeaOrderId"
+                        class="form-control bg-white"
+                        readonly
+                      />
+                    </div>
+
+                    <!-- Inventory ID -->
+                    <div class="mb-3">
+                      <label class="form-label fw-semibold"
+                        >Inventory ID *</label
+                      >
+                      <select id="cmbTeaInventoryId" class="form-select">
+                        <option value="">Select Inventory</option>
+                      </select>
+                    </div>
+
+                    <!-- Available Qty -->
+                    <div class="mb-3">
+                      <label class="form-label fw-semibold"
+                        >Available Quantity</label
+                      >
+                      <input
+                        id="lblTeaAvailableQty"
+                        class="form-control bg-white"
+                        value="0 packets"
+                        readonly
+                      />
+                    </div>
+
+                    <!-- Customer -->
+                    <div class="mb-3">
+                      <label class="form-label fw-semibold">Customer *</label>
+                      <select id="cmbTeaCustomerId" class="form-select">
+                        <option value="">Select Customer</option>
+                      </select>
+                    </div>
+
+                    <!-- Customer Name -->
+                    <div class="mb-3">
+                      <label class="form-label fw-semibold"
+                        >Customer Name</label
+                      >
+                      <input
+                        id="lblTeaCustomerName"
+                        class="form-control bg-white"
+                        readonly
+                      />
+                    </div>
+
+                    <!-- Quantity -->
+                    <div class="mb-3">
+                      <label class="form-label fw-semibold"
+                        >Quantity (Packets) *</label
+                      >
+                      <input
+                        id="txtTeaOrderQuantity"
+                        type="number"
+                        class="form-control"
+                        step="1"
+                      />
+                    </div>
+
+                    <!-- Price -->
+                    <div class="mb-3">
+                      <label class="form-label fw-semibold"
+                        >Price per Packet (Rs) *</label
+                      >
+                      <input
+                        id="txtTeaPricePerPacket"
+                        type="number"
+                        class="form-control"
+                        step="0.01"
+                      />
+                    </div>
+
+                    <!-- Date -->
+                    <div class="mb-3">
+                      <label class="form-label fw-semibold">Date *</label>
+                      <input
+                        id="txtTeaOrderDate"
+                        type="date"
+                        class="form-control"
+                      />
+                    </div>
+
+                    <!-- Total Amount -->
+                    <div class="alert alert-info">
+                      <strong id="lblTeaTotalAmount">Total: Rs 0.00</strong>
+                    </div>
+
+                    <!-- Buttons -->
+                    <div class="row g-2">
+                      <div class="col-4">
+                        <button
+                          id="btnTeaOrderAdd"
+                          class="btn btn-success w-100"
+                        >
+                          Add
+                        </button>
+                      </div>
+                      <div class="col-4">
+                        <button
+                          id="btnTeaOrderUpdate"
+                          class="btn btn-primary w-100"
+                          disabled
+                        >
+                          Update
+                        </button>
+                      </div>
+                      <div class="col-4">
+                        <button
+                          id="btnTeaOrderDelete"
+                          class="btn btn-danger w-100"
+                        >
+                          Delete
+                        </button>
+                      </div>
+                      <div class="col-6">
+                        <button
+                          id="btnTeaOrderClear"
+                          class="btn btn-secondary w-100"
+                        >
+                          Clear
+                        </button>
+                      </div>
+                      <div class="col-6">
+                        <button
+                          id="btnTeaOrderReport"
+                          class="btn btn-warning w-100"
+                        >
+                          Report
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Right Table -->
+                <div class="col-lg-8">
+                  <div class="table-responsive">
+                    <table class="table table-hover table-sm">
+                      <thead class="table-light">
+                        <tr>
+                          <th>Order ID</th>
+                          <th>Customer</th>
+                          <th>Inventory ID</th>
+                          <th>Quantity</th>
+                          <th>Price</th>
+                          <th>Total</th>
+                          <th>Date</th>
+                        </tr>
+                      </thead>
+                      <tbody id="tblTeaOrders">
+                        <tr>
+                          <td colspan="7" class="text-center text-muted">
+                            No orders found
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+        <!-- Customer Payment Section -->
+        <section id="customerAcc" class="payment-section">
+          <h2>💳 Customer Payment</h2>
+
+          <div class="payment-cards">
+            <!-- Add Advance -->
+            <div class="payment-card advance" onclick="openAdvance()">
+              <div class="icon">💰</div>
+              <h3>Add Advance</h3>
+            </div>
+
+            <!-- Add Other -->
+            <div class="payment-card other" onclick="openOther()">
+              <div class="icon">🧾</div>
+              <h3>Add Other</h3>
+            </div>
+
+            <!-- Monthly Summary -->
+            <div class="payment-card summary" onclick="openSummary()">
+              <div class="icon">📊</div>
+              <h3>Monthly Summary</h3>
+            </div>
+          </div>
+        </section>
+
+        <!-- Replace your Customer Advance Section with this fixed version -->
+
+        <!-- ==================== CUSTOMER ADVANCE SECTION ==================== -->
+        <section id="customerAdvanceSection" class="container-fluid p-4 d-none">
+          <div class="card shadow-lg border-0 rounded-4">
+            <!-- Header -->
+            <div
+              class="card-header text-white py-4"
+              style="background: linear-gradient(to right, #1f4529, #3baf4a)"
+            >
+              <div class="d-flex align-items-center gap-3">
+                <!-- Fixed: Changed from 'dashboard' to 'customerAcc' -->
+                <button
+                  class="btn btn-light btn-sm"
+                  onclick="showSection('customerAcc')"
+                >
+                  ⬅ Back
+                </button>
+                <h3 class="mb-0 fw-bold">💰 Manage Customer Advance</h3>
+              </div>
+            </div>
+
+            <!-- Body -->
+            <div class="card-body p-4">
+              <!-- Advance ID -->
+              <div class="mb-3 d-flex gap-3 align-items-center">
+                <label class="fw-bold fs-5">Advance ID :</label>
+                <span id="lblAdvanceId" class="fw-bold fs-5 text-primary"
+                  >ADV001</span
+                >
+              </div>
+
+              <!-- Customer Selection -->
+              <div class="row g-3 align-items-center mb-4">
+                <div class="col-md-3">
+                  <label class="fw-semibold">Customer ID</label>
+                  <select id="cmbCustomerID" class="form-select">
+                    <option value="">Select Customer</option>
+                  </select>
+                </div>
+
+                <div class="col-md-4">
+                  <label class="fw-semibold">Customer Name</label>
+                  <input
+                    id="txtCustomerName"
+                    class="form-control bg-light"
+                    readonly
+                  />
+                </div>
+
+                <div class="col-md-3">
+                  <label class="fw-semibold">Search Name</label>
+                  <input
+                    id="txtSearchName"
+                    class="form-control"
+                    placeholder="Type name..."
+                  />
+                </div>
+
+                <div class="col-md-2">
+                  <button id="btnSearch" class="btn btn-primary w-100 mt-4">
+                    Search
+                  </button>
+                </div>
+              </div>
+
+              <!-- Advance Info -->
+              <div class="row g-3 mb-4">
+                <div class="col-md-4">
+                  <label class="fw-semibold">Advance Amount</label>
+                  <input
+                    id="txtAdvanceAmount"
+                    type="number"
+                    class="form-control"
+                    placeholder="Rs 0.00"
+                  />
+                </div>
+
+                <div class="col-md-4">
+                  <label class="fw-semibold">Date</label>
+                  <input id="txtAdvanceDate" type="date" class="form-control" />
+                </div>
+              </div>
+
+              <!-- Buttons -->
+              <div class="row g-3 mb-4">
+                <div class="col-md-2">
+                  <button id="btnAddAdvance" class="btn btn-success w-100">
+                    Add
+                  </button>
+                </div>
+                <div class="col-md-2">
+                  <button
+                    id="btnUpdateAdvance"
+                    class="btn btn-primary w-100"
+                    disabled
+                  >
+                    Update
+                  </button>
+                </div>
+                <div class="col-md-2">
+                  <button id="btnDeleteAdvance" class="btn btn-danger w-100">
+                    Delete
+                  </button>
+                </div>
+                <div class="col-md-2">
+                  <button id="btnClearAdvance" class="btn btn-secondary w-100">
+                    Clear
+                  </button>
+                </div>
+                <div class="col-md-2">
+                  <!-- Fixed: Changed from 'dashboard' to 'customerAcc' -->
+                  <button
+                    class="btn btn-dark w-100"
+                    onclick="showSection('customerAcc')"
+                  >
+                    Close
+                  </button>
+                </div>
+              </div>
+
+              <!-- Table -->
+              <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                  <thead class="table-light">
+                    <tr>
+                      <th>Customer ID</th>
+                      <th>Customer Name</th>
+                      <th>Advance Amount</th>
+                      <th>Date</th>
+                    </tr>
+                  </thead>
+                  <tbody id="tblAdvance">
+                    <tr>
+                      <td colspan="4" class="text-center text-muted">
+                        No advance records
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </section>
+        <!-- Other Price Management Section -->
+        <section id="otherPriceSection" class="container-fluid p-4 d-none">
+          <div class="card shadow-lg border-0 rounded-4">
+            <!-- Header -->
+            <div
+              class="card-header text-white py-4"
+              style="background: linear-gradient(to right, #dc2626, #ef4444)"
+            >
+              <div class="d-flex align-items-center gap-3">
+                <button
+                  class="btn btn-light btn-sm"
+                  onclick="showSection('customerAcc')"
+                >
+                  ⬅ Back
+                </button>
+                <h3 class="mb-0 fw-bold">
+                  🧾 Manage Other Payments / Deductions
+                </h3>
+              </div>
+            </div>
+
+            <!-- Body -->
+            <div class="card-body p-4">
+              <!-- Other Payment ID -->
+              <div class="mb-3 d-flex gap-3 align-items-center">
+                <label class="fw-bold fs-5">Other ID :</label>
+                <span id="lblOtherID" class="fw-bold fs-5 text-primary"
+                  >OTH001</span
+                >
+              </div>
+
+              <!-- Customer Selection -->
+              <div class="row g-3 align-items-center mb-4">
+                <div class="col-md-3">
+                  <label class="fw-semibold">Customer ID</label>
+                  <select id="cmbCustomerIDOther" class="form-select">
+                    <option value="">Select Customer</option>
+                    <!-- Options will be loaded by JS -->
+                  </select>
+                </div>
+
+                <div class="col-md-4">
+                  <label class="fw-semibold">Customer Name</label>
+                  <input
+                    id="txtCustomerNameOther"
+                    class="form-control bg-light"
+                    readonly
+                    placeholder="-"
+                  />
+                </div>
+
+                <div class="col-md-3">
+                  <label class="fw-semibold">Search Name</label>
+                  <input
+                    id="txtSearchNameOther"
+                    class="form-control"
+                    placeholder="Type name..."
+                  />
+                </div>
+
+                <div class="col-md-2">
+                  <button
+                    id="btnSearchOther"
+                    class="btn btn-primary w-100 mt-4"
+                  >
+                    Search
+                  </button>
+                </div>
+              </div>
+
+              <!-- Other Payment Info -->
+              <div class="row g-3 mb-4">
+                <div class="col-md-5">
+                  <label class="fw-semibold">Description</label>
+                  <textarea
+                    id="txtDescriptionOther"
+                    class="form-control"
+                    rows="3"
+                    placeholder="e.g., Loan repayment, Bonus, Extra charge, etc."
+                  ></textarea>
+                </div>
+
+                <div class="col-md-3">
+                  <label class="fw-semibold">Amount (Rs)</label>
+                  <input
+                    id="txtOtherAmount"
+                    type="number"
+                    step="0.01"
+                    class="form-control"
+                    placeholder="0.00"
+                  />
+                  <small class="text-muted">
+                    Positive = Payment to customer | Negative = Deduction
+                  </small>
+                </div>
+
+                <div class="col-md-4">
+                  <label class="fw-semibold">Date</label>
+                  <input id="txtOtherDate" type="date" class="form-control" />
+                </div>
+              </div>
+
+              <!-- Buttons -->
+              <div class="row g-3 mb-4">
+                <div class="col-md-2">
+                  <button id="btnAddOther" class="btn btn-success w-100">
+                    Add
+                  </button>
+                </div>
+                <div class="col-md-2">
+                  <button
+                    id="btnUpdateOther"
+                    class="btn btn-primary w-100"
+                    disabled
+                  >
+                    Update
+                  </button>
+                </div>
+                <div class="col-md-2">
+                  <button id="btnDeleteOther" class="btn btn-danger w-100">
+                    Delete
+                  </button>
+                </div>
+                <div class="col-md-2">
+                  <button id="btnClearOther" class="btn btn-secondary w-100">
+                    Clear
+                  </button>
+                </div>
+                <div class="col-md-2">
+                  <button
+                    class="btn btn-dark w-100"
+                    onclick="showSection('customerAcc')"
+                  >
+                    Close
+                  </button>
+                </div>
+              </div>
+
+              <!-- Table -->
+              <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                  <thead class="table-light">
+                    <tr>
+                      <th>Other ID</th>
+                      <th>Customer ID</th>
+                      <th>Customer Name</th>
+                      <th>Description</th>
+                      <th class="text-end">Amount (Rs)</th>
+                      <th>Date</th>
+                    </tr>
+                  </thead>
+                  <tbody id="tblOther">
+                    <tr>
+                      <td colspan="6" class="text-center text-muted">
+                        No other payment records
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </section>
+        <!-- ==================== CUSTOMER MONTHLY PAYMENT SUMMARY SECTION ==================== -->
+        <section id="customerSummarySection" class="container-fluid p-4 d-none">
+          <div class="card shadow-lg border-0 rounded-4 overflow-hidden h-100">
+            <!-- Header -->
+            <div
+              class="card-header text-white py-4"
+              style="background: linear-gradient(to right, #185519, #3baf4a)"
+            >
+              <div class="d-flex align-items-center gap-3">
+                <button
+                  class="btn btn-light btn-sm"
+                  onclick="showSection('customerAcc')"
+                >
+                  ⬅ Back
+                </button>
+                <h3 class="mb-0 fw-bold">
+                  👤 Customer Monthly Payment Summary
+                </h3>
+              </div>
+            </div>
+
+            <!-- Body -->
+            <div class="card-body p-4">
+              <!-- Customer MP ID -->
+              <div class="mb-4">
+                <strong class="fs-5">Customer MP ID:</strong>
+                <span
+                  id="lblCustomerMPID"
+                  class="fs-5 text-primary ms-2 fw-bold"
+                  >CMP-001</span
+                >
+              </div>
+
+              <!-- Year & Month + Customer Selection -->
+              <div class="row g-3 align-items-end mb-4">
+                <div class="col-md-2">
+                  <label class="form-label fw-semibold">Year</label>
+                  <select id="cmbSummaryYear" class="form-select"></select>
+                </div>
+                <div class="col-md-2">
+                  <label class="form-label fw-semibold">Month</label>
+                  <select id="cmbSummaryMonth" class="form-select"></select>
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label fw-semibold">Customer ID</label>
+                  <select
+                    id="cmbSummaryCustomerID"
+                    class="form-select"
+                  ></select>
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label fw-semibold">Customer Name</label>
+                  <input
+                    id="lblSummaryCustomerName"
+                    type="text"
+                    class="form-control bg-light"
+                    readonly
+                    value="-"
+                  />
+                </div>
+                <div class="col-md-2">
+                  <button id="btnLoadSummaryData" class="btn btn-primary w-100">
+                    Load Data
+                  </button>
+                </div>
+              </div>
+
+              <!-- Previous Remaining -->
+              <div
+                class="alert alert-warning d-flex justify-content-between align-items-center mb-4 py-3"
+              >
+                <div>
+                  <strong>Remaining Fertilizer Amount (Prev Month):</strong>
+                  <span
+                    id="lblPrevFertilizerRemaining"
+                    class="ms-2 text-danger fw-bold"
+                    >Rs 0.00</span
+                  >
+                </div>
+                <div>
+                  <strong>Remaining Amount (Prev Month):</strong>
+                  <span
+                    id="lblPrevRemainingAmount"
+                    class="ms-2 text-orange fw-bold"
+                    >Rs 0.00</span
+                  >
+                </div>
+                <button id="btnCalculateSummary" class="btn btn-success px-4">
+                  Calculate
+                </button>
+              </div>
+
+              <!-- Scrollable Tables Area -->
+              <div
+                class="border rounded-3 p-3 mb-4"
+                style="max-height: 500px; overflow-y: auto; background: #f8f9fa"
+              >
+                <div class="row g-4">
+                  <!-- Raw Tea Table -->
+                  <div class="col-12">
+                    <div class="bg-white rounded-3 shadow-sm p-3">
+                      <h5 class="fw-bold text-success mb-3">🫖 Raw Tea</h5>
+                      <div class="table-responsive">
+                        <table class="table table-hover table-sm align-middle">
+                          <thead class="table-light">
+                            <tr>
+                              <th>Date</th>
+                              <th>Best Tea (kg)</th>
+                              <th>Normal Tea (kg)</th>
+                              <th>Best Tea Total</th>
+                              <th>Normal Tea Total</th>
+                              <th>Full Total</th>
+                            </tr>
+                          </thead>
+                          <tbody id="tblSummaryRawTea">
+                            <tr>
+                              <td
+                                colspan="6"
+                                class="text-center text-muted py-4"
+                              >
+                                No data available
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Fertilizer Table -->
+                  <div class="col-12">
+                    <div class="bg-white rounded-3 shadow-sm p-3">
+                      <h5 class="fw-bold text-success mb-3">🌿 Fertilizer</h5>
+                      <div class="table-responsive">
+                        <table class="table table-hover table-sm align-middle">
+                          <thead class="table-light">
+                            <tr>
+                              <th>Date</th>
+                              <th>Kg</th>
+                              <th>Type</th>
+                              <th>Paid</th>
+                              <th>Remaining</th>
+                            </tr>
+                          </thead>
+                          <tbody id="tblSummaryFertilizer">
+                            <tr>
+                              <td
+                                colspan="5"
+                                class="text-center text-muted py-4"
+                              >
+                                No data available
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Tea Packet Table -->
+                  <div class="col-12">
+                    <div class="bg-white rounded-3 shadow-sm p-3">
+                      <h5 class="fw-bold text-primary mb-3">📦 Tea Packet</h5>
+                      <div class="table-responsive">
+                        <table class="table table-hover table-sm align-middle">
+                          <thead class="table-light">
+                            <tr>
+                              <th>Date</th>
+                              <th>Qty</th>
+                              <th>Rate</th>
+                              <th>Total</th>
+                            </tr>
+                          </thead>
+                          <tbody id="tblSummaryTeaPacket">
+                            <tr>
+                              <td
+                                colspan="4"
+                                class="text-center text-muted py-4"
+                              >
+                                No data available
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Advance Table -->
+                  <div class="col-12">
+                    <div class="bg-white rounded-3 shadow-sm p-3">
+                      <h5 class="fw-bold text-warning mb-3">💰 Advance</h5>
+                      <div class="table-responsive">
+                        <table class="table table-hover table-sm align-middle">
+                          <thead class="table-light">
+                            <tr>
+                              <th>Date</th>
+                              <th>Amount</th>
+                            </tr>
+                          </thead>
+                          <tbody id="tblSummaryAdvance">
+                            <tr>
+                              <td
+                                colspan="2"
+                                class="text-center text-muted py-4"
+                              >
+                                No data available
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Other Charges Table -->
+                  <div class="col-12">
+                    <div class="bg-white rounded-3 shadow-sm p-3">
+                      <h5 class="fw-bold text-danger mb-3">🧾 Other Charges</h5>
+                      <div class="table-responsive">
+                        <table class="table table-hover table-sm align-middle">
+                          <thead class="table-light">
+                            <tr>
+                              <th>Date</th>
+                              <th>Description</th>
+                              <th>Amount</th>
+                            </tr>
+                          </thead>
+                          <tbody id="tblSummaryOther">
+                            <tr>
+                              <td
+                                colspan="3"
+                                class="text-center text-muted py-4"
+                              >
+                                No data available
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Final Summary Bar -->
+              <div class="bg-light rounded-3 p-4 border">
+                <div class="row text-center g-4">
+                  <div class="col">
+                    <strong>Total Raw Tea</strong>
+                    <div
+                      id="lblSummaryTotalRawTea"
+                      class="fs-4 text-primary fw-bold mt-1"
+                    >
+                      Rs 0.00
+                    </div>
+                  </div>
+                  <div class="col">
+                    <strong>Total Tea Packet</strong>
+                    <div
+                      id="lblSummaryTotalTeaPacket"
+                      class="fs-4 text-success fw-bold mt-1"
+                    >
+                      Rs 0.00
+                    </div>
+                  </div>
+                  <div class="col">
+                    <strong>Total Fertilizer</strong>
+                    <div
+                      id="lblSummaryTotalFertilizer"
+                      class="fs-4 text-danger fw-bold mt-1"
+                    >
+                      Rs 0.00
+                    </div>
+                  </div>
+                  <div class="col">
+                    <strong>Remaining Fertilizer (Next Month)</strong>
+                    <div
+                      id="lblSummaryNextFertilizer"
+                      class="fs-4 text-danger fw-bold mt-1"
+                    >
+                      Rs 0.00
+                    </div>
+                  </div>
+                  <div class="col">
+                    <strong>Advance</strong>
+                    <div
+                      id="lblSummaryTotalAdvance"
+                      class="fs-4 text-danger fw-bold mt-1"
+                    >
+                      Rs 0.00
+                    </div>
+                  </div>
+                  <div class="col">
+                    <strong>Other</strong>
+                    <div
+                      id="lblSummaryTotalOther"
+                      class="fs-4 text-danger fw-bold mt-1"
+                    >
+                      Rs 0.00
+                    </div>
+                  </div>
+                  <div class="col">
+                    <strong>Grand Total</strong>
+                    <div
+                      id="lblSummaryGrandTotal"
+                      class="fs-4 text-warning fw-bold mt-1"
+                    >
+                      Rs 0.00
+                    </div>
+                  </div>
+                  <div class="col">
+                    <strong>Remaining Amount (Next Month)</strong>
+                    <div
+                      id="lblSummaryNextRemaining"
+                      class="fs-4 text-orange fw-bold mt-1"
+                    >
+                      Rs 0.00
+                    </div>
+                  </div>
+                  <div class="col d-flex align-items-end">
+                    <button
+                      id="btnGenerateReport"
+                      class="btn btn-primary btn-lg w-100"
+                    >
+                      Generate Report
+                    </button>
+                    <button
+                      id="btnGenerateAllReports"
+                      class="btn btn-outline-danger btn-lg w-100 mt-2"
+                    >
+                      <i class="bi bi-collection me-2"></i>Generate All Reports
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+        <!-- ... all other sections -->
+      </main>
+    </div>
+
+    <script src="js/utils/notification.js"></script>
+    <!-- 1. jQuery - Correct path from index.html -->
+    <script src="js/utils/jquery-3.7.1.min.js"></script>
+
+    <!-- 2. Bootstrap Bundle - Correct path -->
+    <script src="js/utils/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Your page scripts -->
+    <script src="js/pages/login.js"></script>
+    <script src="js/pages/users.js"></script>
+    <script src="js/pages/customer.js"></script>
+    <script src="js/pages/employees.js"></script>
+    <script src="js/pages/teaFactory.js"></script>
+    <script src="js/pages/rawTeaInventory.js"></script>
+    <script src="js/pages/monthlytearate.js"></script>
+    <script src="js/pages/fertilizerInventory.js"></script>
+    <script src="js/pages/fertilizerOrder.js"></script>
+    <script src="js/pages/teaPacketInventory.js"></script>
+    <script src="js/pages/teapacketorder.js"></script>
+    <script src="js/pages/advance.js"></script>
+    <script src="js/pages/otherprices.js"></script>
+    <script src="js/pages/customermonthlysummry.js"></script>
+
+    <script>
+      function openAdvance() {
+        showSection("customerAdvanceSection");
+      }
+
+      function openOther() {
+        showSection("otherPriceSection");
+      }
+
+      function openSummary() {
+        showSection("customerSummarySection"); // You'll need to create this section
+      }
+      function showSection(sectionId) {
+        // Hide all sections
+        document.querySelectorAll("section").forEach((section) => {
+          section.classList.add("d-none");
+        });
+
+        // Show selected section
+        const selectedSection = document.getElementById(sectionId);
+        if (selectedSection) {
+          selectedSection.classList.remove("d-none");
+        }
+      }
+
+      // Show fertilizer inventory by default
+      document.addEventListener("DOMContentLoaded", function () {
+        showSection("fertilizerInventorySection");
+      });
+    </script>
+
+    <!-- other page js -->
+
+    <!-- Bootstrap Bundle -->
+    <!-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script> -->
+  </body>
+</html>

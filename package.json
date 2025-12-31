@@ -1,0 +1,67 @@
+{
+  "name": "teacenter",
+  "version": "1.0.0",
+  "description": "Tea Center management desktop app",
+  "author": "Your Name",
+  "main": "src/main/index.js",
+  "type": "module",
+  "scripts": {
+    "start": "electron .",
+    "dev": "nodemon --watch src --exec \"electron .\"",
+    "build": "electron-builder",
+    "postinstall": "electron-builder install-app-deps"
+  },
+  "build": {
+    "appId": "com.yourname.teacenter",
+    "productName": "TeaCenter",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "src/**/*",
+      "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": "src/assets/fonts/",
+        "to": "assets/fonts/",
+        "filter": [
+          "**/*.ttf",
+          "**/*.otf"
+        ]
+      }
+    ],
+    "win": {
+      "target": "nsis"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
+    }
+  },
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "better-sqlite3": "^12.5.0",
+    "electron-updater": "^6.6.2"
+  },
+  "devDependencies": {
+    "@electron/rebuild": "^4.0.2",
+    "electron": "^39.2.6",
+    "electron-builder": "^26.0.12",
+    "nodemon": "^3.1.11"
+  },
+  "directories": {
+    "doc": "docs",
+    "test": "tests"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Achintha-deshan/Tea-Center-Electron.git"
+  },
+  "keywords": [],
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Achintha-deshan/Tea-Center-Electron/issues"
+  },
+  "homepage": "https://github.com/Achintha-deshan/Tea-Center-Electron#readme"
+}

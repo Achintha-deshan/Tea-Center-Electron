@@ -1,0 +1,210 @@
+
+<!DOCTYPE html>
+<html lang="si">
+<head>
+    <meta charset="UTF-8">
+    <title>මාසික ගිණුම් පත්‍රය</title>
+    <style>
+        @font-face {
+            font-family: 'Sinhala';
+            src: url('file://${fontPath.replace(/\\/g, '/')}') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+        }
+        body {
+            font-family: 'Sinhala', Arial, sans-serif;
+            margin: 15px;
+            padding: 10px;
+            font-size: 11pt;
+            background: #fffbe6; /* Classic yellow paper */
+            color: #000;
+            line-height: 1.5;
+        }
+        .container {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+        }
+        .left-section {
+            width: 58%;
+            border: 2px solid #000;
+            padding: 15px;
+            background: white;
+        }
+        .right-section {
+            width: 38%;
+        }
+        .right-box {
+            border: 2px solid #000;
+            padding: 10px;
+            margin-bottom: 15px;
+            background: white;
+        }
+        .right-box h3 {
+            text-align: center;
+            margin: 0 0 10px 0;
+            font-size: 12pt;
+            border-bottom: 1px solid #000;
+            padding-bottom: 5px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 10.5pt;
+        }
+        th, td {
+            border: 1px solid #000;
+            padding: 6px;
+            text-align: center;
+        }
+        th {
+            background-color: #f0f0f0;
+            font-weight: bold;
+        }
+        .calc-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 4px 0;
+        }
+        .calc-label {
+            text-align: left;
+            width: 60%;
+        }
+        .calc-amount {
+            text-align: right;
+            width: 40%;
+            font-weight: bold;
+        }
+        .underline {
+            border-bottom: 1px solid #000;
+            margin: 8px 0;
+        }
+        .double-underline {
+            border-bottom: 3px double #000;
+            margin: 12px 0;
+            font-weight: bold;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+            border-bottom: 3px double #000;
+            padding-bottom: 10px;
+        }
+        .header h1 {
+            font-size: 18pt;
+            margin: 10px 0;
+            font-weight: bold;
+        }
+        .customer-info {
+            display: flex;
+            justify-content: space-between;
+            margin: 15px 0;
+            font-size: 12pt;
+        }
+        .footer {
+            margin-top: 40px;
+            text-align: center;
+            font-size: 11pt;
+        }
+        .signature {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 50px;
+            font-size: 12pt;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>THARINDU TEA CENTER</h1>
+        <h1>මල්ලවආරච්චි ආයු බෝ තේ මල්ලවආරච්චි</h1>
+    </div>
+
+    <div class="customer-info">
+        <div>
+            <strong>ලි. අංකය :</strong> ${data.customerId}<br>
+            <strong>කලාපය අංකය :</strong> 144<br>
+            <strong>නම :</strong> ${data.customerName}
+        </div>
+        <div style="text-align:right;">
+            <strong>මාසය :</strong> ${data.month} ${data.year}<br>
+            <strong>මොබයිල් :</strong> 077 xxx xxxx
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Left Side - Main Calculation -->
+        <div class="left-section">
+            <div class="calc-row">
+                <span class="calc-label">ද.මී බරය</span>
+                <span class="calc-amount">${data.totalKg || '0.00'} කි.ග්. 1ම මිල රු. ${data.rate || '0.00'} &nbsp;&nbsp; Rs ${parseFloat(data.totalRawTea || 0).toFixed(2)}</span>
+            </div>
+            <div class="calc-row">
+                <span class="calc-label">අඩුපාඩු තේකරණය</span>
+                <span class="calc-amount">0.00</span>
+            </div>
+            <div class="underline">
+                <span class="calc-label bold">මුළු තේකරණය</span>
+                <span class="calc-amount bold">Rs ${parseFloat(data.totalRawTea || 0).toFixed(2)}</span>
+            </div>
+
+            <div style="margin-top:15px;"><strong>අඩු කිරීම්</strong></div>
+            <div class="calc-row"><span class="calc-label">රිය ගාස්තු</span><span class="calc-amount">Rs ${parseFloat(data.transport || 0).toFixed(2)}</span></div>
+            <div class="calc-row"><span class="calc-label">තේක ගාස්තු</span><span class="calc-amount">Rs 0.00</span></div>
+            <div class="calc-row"><span class="calc-label">අත්තැඟිලි</span><span class="calc-amount">Rs ${parseFloat(data.totalAdvance || 0).toFixed(2)}</span></div>
+            <div class="calc-row"><span class="calc-label">පොහොර</span><span class="calc-amount">Rs ${parseFloat(data.paidFertilizer || 0).toFixed(2)}</span></div>
+            <div class="calc-row"><span class="calc-label">තේ කෝට්ටු</span><span class="calc-amount">Rs ${parseFloat(data.totalTeaPacket || 0).toFixed(2)}</span></div>
+            <div class="calc-row"><span class="calc-label">කළු තේකරණ</span><span class="calc-amount">Rs 0.00</span></div>
+            <div class="calc-row"><span class="calc-label">තක්ක තේකරණ</span><span class="calc-amount">Rs 0.00</span></div>
+            <div class="calc-row"><span class="calc-label">ලංසා තේකරණ</span><span class="calc-amount">Rs 0.00</span></div>
+            <div class="calc-row"><span class="calc-label">පෙර මාස (ඉතිරි)</span><span class="calc-amount">Rs ${parseFloat(data.prevArrears || 0).toFixed(2)}</span></div>
+            <div class="calc-row"><span class="calc-label">අනෙකුත්</span><span class="calc-amount">Rs ${parseFloat(data.totalOther || 0).toFixed(2)}</span></div>
+            <div class="underline">
+                <span class="calc-label bold">මුළු අඩු කිරීම්</span>
+                <span class="calc-amount bold">Rs ${parseFloat(data.totalDeductions || 0).toFixed(2)}</span>
+            </div>
+
+            <div class="calc-row">
+                <span class="calc-label">අඩුපාඩු තේකරණය</span>
+                <span class="calc-amount">0.00</span>
+            </div>
+            <div class="double-underline">
+                <span class="calc-label bold">ඉතිරි මුදල</span>
+                <span class="calc-amount bold">Rs ${parseFloat(data.grandTotal || 0).toFixed(2)}</span>
+            </div>
+        </div>
+
+        <!-- Right Side - Advance, TEA, Fertilizer, Other -->
+        <div class="right-section">
+            <div class="right-box">
+                <h3>අත්තැඟිලි</h3>
+                ${data.advanceTable}
+            </div>
+
+            <div class="right-box">
+                <h3>තේ පැකට්</h3>
+                ${data.teaPacketTable}
+            </div>
+
+            <div class="right-box">
+                <h3>පොහොර</h3>
+                ${data.fertilizerTable}
+            </div>
+
+            <div class="right-box">
+                <h3>වෙනත්</h3>
+                ${data.otherTable}
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>1957 අංක 51 දරණ තේ කම්කරු ආඥාපනතට අනුව ${data.month} ${data.year} මාසය සඳහා ගෙවිය යුතු මුදල රු. 51.4 යි කියා සහතික කරමි.</p>
+    </div>
+
+    <div class="signature">
+        <div>අත්සන්: _______________________________</div>
+        <div>දිනය: _______________________________</div>
+    </div>
+</body>
+</html>
